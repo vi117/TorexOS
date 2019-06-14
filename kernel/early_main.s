@@ -1,0 +1,4 @@
+bits 64
+org 0xFFFFC00000000000+0x100000
+
+times 1024 db 0xCC
