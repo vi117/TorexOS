@@ -1,6 +1,6 @@
 all:
 	make Kernel
 Kernel: early_main.s
-	nasm -felf64 -o kernel.o early_main.s
+	nasm -o kernel.bin early_main.bin
 clean:
-	rm kernel.o
+	rm kernel.bin

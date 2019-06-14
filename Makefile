@@ -14,8 +14,8 @@ Bootloader:
 Kernel:
 	make -C kernel
 
-disk.img: bootsect/stage1.o bootsect/stage2.o kernel/kernel.o
-	$(LD) $(LDFLAGS) ../dev/bootsect/stage1.o $(SRC_PATH)/bootsect/stage2.o $(SRC_PATH)/kernel/kernel.o -o disk.bin
+disk.img: bootsect/stage1.bin bootsect/stage2.bin kernel/kernel.bin
+	cat bootsect/stage1.bin bootsect/stage2.bin kernel/kernel.bin > disk.img
 	
 clean:
 	make -C bootsect clean
