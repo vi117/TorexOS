@@ -16,5 +16,5 @@ system_address_map_avil_length equ (system_address_map_end - system_address_map)
 
 PageTableAddress equ 0x3000 ;those size is 12kb.
 
-%define KernelSize 1024
+%define KernelSize 512
 %define KernelLoadedAddress 0x100000
