@@ -2,7 +2,7 @@ PROJECT_PATH = /home/coder/project
 SRC_PATH = $(PROJECT_PATH)/dev
 TOOL_PATH = $(PROJECT_PATH)/tools
 LD = $(TOOL_PATH)/x86_64-elf-ld
-LDFLAGS = -nostdlib -T $(SRC_PATH)/kernel/kernel_ldscript.ld
+LDFLAGS = -nostdlib -T $(SRC_PATH)/kernel/kernel.ld
 all:
 	make Bootloader
 	make Kernel
