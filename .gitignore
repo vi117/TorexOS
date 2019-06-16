@@ -1,3 +1,6 @@
 *.[oa]
 *.img
 *.bin
+CMakeCache.txt
+cmake_install.cmake
+CMakeFiles/

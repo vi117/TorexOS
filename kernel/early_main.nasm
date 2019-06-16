@@ -1,6 +1,6 @@
 bits 64
 ;org 0xFFFFC00000000000+0x100000
-global early_main
+GLOBAL early_main
 
 section .early_text
 early_main:
