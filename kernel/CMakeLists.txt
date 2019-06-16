@@ -23,3 +23,7 @@ set(CXX_SRC_FILE main.cpp)
 set(ASM_SRC_FILE early_main.nasm)
 
 add_executable(kernel.bin ${CXX_SRC_FILE} ${ASM_SRC_FILE} )
+
+add_custom_command(TARGET kernel.bin POST_BUILD
+    COMMAND python "/home/coder/project/dev/kernel/tools/padding.py" kernel.bin
+)

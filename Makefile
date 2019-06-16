@@ -1,11 +1,12 @@
-all:
-	make Bootloader
-	make Kernel
-	make disk.img
+export KERNELSIZE = $(shell stat -c %s kernel/kernel.bin)
 
+all:
+	make Kernel
+	make Bootloader
+	make disk.img
 Bootloader:
-	@echo ===== Enter bootloader =====
 	make -C bootsect
+
 Kernel:
 	make -C kernel
 
