@@ -1,5 +1,5 @@
-#include "vgaout.h"
-#include <cursor.h>
+#include <vga/vgaout.h>
+#include <vga/cursor.h>
 
 text::Cursor cursor;
 text::charactor * screen = text::raw_screen();

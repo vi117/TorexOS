@@ -1,4 +1,4 @@
-#include<cursor.h>
+#include<vga/cursor.h>
 #include<intrins.h>
 
 enum VGA

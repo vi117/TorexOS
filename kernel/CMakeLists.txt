@@ -19,10 +19,17 @@ set(CMAKE_CXX_FLAGS "-ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti 
 set(CMAKE_ASM_NASM_OBJECT_FORMAT "elf64")
 set(CMAKE_EXE_LINKER_FLAGS "-nostdlib -T kernel.ld -Xlinker -Map=output.map")
 
-set(CXX_SRC_FILE "src/cursor.cpp" "src/vgaout.cpp")
+set(CXX_SRC_FILE "vga/cursor.cpp" "vga/vgaout.cpp")
 
-set(CXX_SRC_FILE main.cpp ${CXX_SRC_FILE})
-set(ASM_SRC_FILE early_main.nasm)
+set(CXX_SRC_FILE "main.cpp" ${CXX_SRC_FILE})
+
+set(TEMP "")
+foreach(list_arg ${CXX_SRC_FILE})
+    set(TEMP "${TEMP}" "src/${list_arg}")
+endforeach(list_arg)
+set(CXX_SRC_FILE ${TEMP})
+
+set(ASM_SRC_FILE "src/early_main.nasm")
 
 include_directories("include/")
 
