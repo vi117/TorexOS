@@ -17,13 +17,17 @@ set(CMAKE_VERBOSE_MAKEFILE true )
 set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_CXX_FLAGS "-ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -fno-stack-protector")
 set(CMAKE_ASM_NASM_OBJECT_FORMAT "elf64")
-set(CMAKE_EXE_LINKER_FLAGS "-nostdlib -T kernel.ld")
+set(CMAKE_EXE_LINKER_FLAGS "-nostdlib -T kernel.ld -Xlinker -Map=output.map")
 
-set(CXX_SRC_FILE main.cpp)
+set(CXX_SRC_FILE "src/cursor.cpp" "src/vgaout.cpp")
+
+set(CXX_SRC_FILE main.cpp ${CXX_SRC_FILE})
 set(ASM_SRC_FILE early_main.nasm)
+
+include_directories("include/")
 
 add_executable(kernel.bin ${CXX_SRC_FILE} ${ASM_SRC_FILE} )
 
 add_custom_command(TARGET kernel.bin POST_BUILD
-    COMMAND python "/home/coder/project/dev/kernel/tools/padding.py" kernel.bin
+    COMMAND python "${PROJECT_BINARY_DIR}/tools/padding.py" kernel.bin
 )

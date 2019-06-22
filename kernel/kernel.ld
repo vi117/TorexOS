@@ -9,20 +9,24 @@ SECTIONS
         *(.text)
         TEXT_END = .;
     } = 0xcccccccc
-    .rodata : ALIGN(0x200){
+    .rodata BLOCK(0x200)  : ALIGN(0x200){
         RODATA_START = .;
         *(.rodata)
         RODATA_END = .;
     } = 0xcccccccc
-    .data : ALIGN(0x200) {
+    .data BLOCK(0x200)  : ALIGN(0x200) {
         DATA_START = .;
         *(.data)
         DATA_END = .;
     } = 0xcccccccc
 
-    .bss : ALIGN(0x200) {
+    .bss BLOCK(0x200) : ALIGN(0x200) {
         BSS_START = .;
         *(.bss)
+        *(COMMON)
         BSS_END = .;
     } = 0xcccccccc
+    /DISCARD/ : {
+        *(.eh_frame)
+    }
 }
