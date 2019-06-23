@@ -2,7 +2,7 @@
 #include <vga/cursor.h>
 
 text::Cursor cursor;
-text::charactor * screen = text::raw_screen();
+text::charactor * screen {text::raw_screen()};
 text::color literColor = {text::ForeCyan,text::BackBlack};
 
 void text::raw_print(int x,int y, const char * str){
