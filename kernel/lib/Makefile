@@ -51,10 +51,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/coder/project/dev/kernel
+CMAKE_SOURCE_DIR = /home/coder/project/dev/kernel/lib
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/coder/project/dev/kernel
+CMAKE_BINARY_DIR = /home/coder/project/dev/kernel/lib
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -81,11 +81,22 @@ edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
 
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
+	/usr/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+
+.PHONY : test/fast
+
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/coder/project/dev/kernel/CMakeFiles /home/coder/project/dev/kernel/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/coder/project/dev/kernel/lib/CMakeFiles /home/coder/project/dev/kernel/lib/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/coder/project/dev/kernel/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/coder/project/dev/kernel/lib/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -114,107 +125,60 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named kernel.bin
+# Target rules for targets named kernel
 
 # Build rule for target.
-kernel.bin: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 kernel.bin
-.PHONY : kernel.bin
+kernel: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 kernel
+.PHONY : kernel
 
 # fast build rule for target.
-kernel.bin/fast:
-	$(MAKE) -f CMakeFiles/kernel.bin.dir/build.make CMakeFiles/kernel.bin.dir/build
-.PHONY : kernel.bin/fast
+kernel/fast:
+	$(MAKE) -f CMakeFiles/kernel.dir/build.make CMakeFiles/kernel.dir/build
+.PHONY : kernel/fast
 
-src/early_main.o: src/early_main.nasm.o
+#=============================================================================
+# Target rules for targets named stringutil_test
 
-.PHONY : src/early_main.o
+# Build rule for target.
+stringutil_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 stringutil_test
+.PHONY : stringutil_test
+
+# fast build rule for target.
+stringutil_test/fast:
+	$(MAKE) -f CMakeFiles/stringutil_test.dir/build.make CMakeFiles/stringutil_test.dir/build
+.PHONY : stringutil_test/fast
 
 # target to build an object file
-src/early_main.nasm.o:
-	$(MAKE) -f CMakeFiles/kernel.bin.dir/build.make CMakeFiles/kernel.bin.dir/src/early_main.nasm.o
-.PHONY : src/early_main.nasm.o
-
-src/main.o: src/main.cpp.o
-
-.PHONY : src/main.o
-
-# target to build an object file
-src/main.cpp.o:
-	$(MAKE) -f CMakeFiles/kernel.bin.dir/build.make CMakeFiles/kernel.bin.dir/src/main.cpp.o
-.PHONY : src/main.cpp.o
-
-src/main.i: src/main.cpp.i
-
-.PHONY : src/main.i
+src/string.o:
+	$(MAKE) -f CMakeFiles/kernel.dir/build.make CMakeFiles/kernel.dir/src/string.o
+.PHONY : src/string.o
 
 # target to preprocess a source file
-src/main.cpp.i:
-	$(MAKE) -f CMakeFiles/kernel.bin.dir/build.make CMakeFiles/kernel.bin.dir/src/main.cpp.i
-.PHONY : src/main.cpp.i
-
-src/main.s: src/main.cpp.s
-
-.PHONY : src/main.s
+src/string.i:
+	$(MAKE) -f CMakeFiles/kernel.dir/build.make CMakeFiles/kernel.dir/src/string.i
+.PHONY : src/string.i
 
 # target to generate assembly for a file
-src/main.cpp.s:
-	$(MAKE) -f CMakeFiles/kernel.bin.dir/build.make CMakeFiles/kernel.bin.dir/src/main.cpp.s
-.PHONY : src/main.cpp.s
-
-src/vga/cursor.o: src/vga/cursor.cpp.o
-
-.PHONY : src/vga/cursor.o
+src/string.s:
+	$(MAKE) -f CMakeFiles/kernel.dir/build.make CMakeFiles/kernel.dir/src/string.s
+.PHONY : src/string.s
 
 # target to build an object file
-src/vga/cursor.cpp.o:
-	$(MAKE) -f CMakeFiles/kernel.bin.dir/build.make CMakeFiles/kernel.bin.dir/src/vga/cursor.cpp.o
-.PHONY : src/vga/cursor.cpp.o
-
-src/vga/cursor.i: src/vga/cursor.cpp.i
-
-.PHONY : src/vga/cursor.i
+test/stringutil_test.o:
+	$(MAKE) -f CMakeFiles/stringutil_test.dir/build.make CMakeFiles/stringutil_test.dir/test/stringutil_test.o
+.PHONY : test/stringutil_test.o
 
 # target to preprocess a source file
-src/vga/cursor.cpp.i:
-	$(MAKE) -f CMakeFiles/kernel.bin.dir/build.make CMakeFiles/kernel.bin.dir/src/vga/cursor.cpp.i
-.PHONY : src/vga/cursor.cpp.i
-
-src/vga/cursor.s: src/vga/cursor.cpp.s
-
-.PHONY : src/vga/cursor.s
+test/stringutil_test.i:
+	$(MAKE) -f CMakeFiles/stringutil_test.dir/build.make CMakeFiles/stringutil_test.dir/test/stringutil_test.i
+.PHONY : test/stringutil_test.i
 
 # target to generate assembly for a file
-src/vga/cursor.cpp.s:
-	$(MAKE) -f CMakeFiles/kernel.bin.dir/build.make CMakeFiles/kernel.bin.dir/src/vga/cursor.cpp.s
-.PHONY : src/vga/cursor.cpp.s
-
-src/vga/vgaout.o: src/vga/vgaout.cpp.o
-
-.PHONY : src/vga/vgaout.o
-
-# target to build an object file
-src/vga/vgaout.cpp.o:
-	$(MAKE) -f CMakeFiles/kernel.bin.dir/build.make CMakeFiles/kernel.bin.dir/src/vga/vgaout.cpp.o
-.PHONY : src/vga/vgaout.cpp.o
-
-src/vga/vgaout.i: src/vga/vgaout.cpp.i
-
-.PHONY : src/vga/vgaout.i
-
-# target to preprocess a source file
-src/vga/vgaout.cpp.i:
-	$(MAKE) -f CMakeFiles/kernel.bin.dir/build.make CMakeFiles/kernel.bin.dir/src/vga/vgaout.cpp.i
-.PHONY : src/vga/vgaout.cpp.i
-
-src/vga/vgaout.s: src/vga/vgaout.cpp.s
-
-.PHONY : src/vga/vgaout.s
-
-# target to generate assembly for a file
-src/vga/vgaout.cpp.s:
-	$(MAKE) -f CMakeFiles/kernel.bin.dir/build.make CMakeFiles/kernel.bin.dir/src/vga/vgaout.cpp.s
-.PHONY : src/vga/vgaout.cpp.s
+test/stringutil_test.s:
+	$(MAKE) -f CMakeFiles/stringutil_test.dir/build.make CMakeFiles/stringutil_test.dir/test/stringutil_test.s
+.PHONY : test/stringutil_test.s
 
 # Help Target
 help:
@@ -223,18 +187,16 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... rebuild_cache"
-	@echo "... kernel.bin"
 	@echo "... edit_cache"
-	@echo "... src/early_main.o"
-	@echo "... src/main.o"
-	@echo "... src/main.i"
-	@echo "... src/main.s"
-	@echo "... src/vga/cursor.o"
-	@echo "... src/vga/cursor.i"
-	@echo "... src/vga/cursor.s"
-	@echo "... src/vga/vgaout.o"
-	@echo "... src/vga/vgaout.i"
-	@echo "... src/vga/vgaout.s"
+	@echo "... test"
+	@echo "... kernel"
+	@echo "... stringutil_test"
+	@echo "... src/string.o"
+	@echo "... src/string.i"
+	@echo "... src/string.s"
+	@echo "... test/stringutil_test.o"
+	@echo "... test/stringutil_test.i"
+	@echo "... test/stringutil_test.s"
 .PHONY : help
 
 

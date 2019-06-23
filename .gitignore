@@ -5,3 +5,6 @@ CMakeCache.txt
 cmake_install.cmake
 CMakeFiles/
 output.map
+Testing/
+*_test
+CTestTestfile.cmake
