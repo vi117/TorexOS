@@ -9,6 +9,9 @@ project("PPKOS_2")
 message ( ${CMAKE_PROJECT_NAME} )
 
 enable_language(ASM_NASM)
+enable_testing()
+
+add_subdirectory(lib)
 
 #일단 true
 set ( CMAKE_BUILD_TYPE <Debug|Release> )
