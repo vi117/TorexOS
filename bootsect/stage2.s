@@ -225,6 +225,7 @@ LoadKenerl:
 
         cmp ebx, 0
         je .loadingSuccess
+        jmp .loop
     .LoadKernelError:
         mov si, LoadKernelErrorStr
         call print
