@@ -22,12 +22,12 @@ SECTIONS
     } = 0xcccccccc
     .init_array :{
         __init_array_start = .;
-        *(.init_array)
+        KEEP(*(.init_array))
         __init_array_end = .;
     }
     .fini_array :{
         __fini_array_start = .;
-        *(.fini_array)
+        KEEP(*(.fini_array))
         __fini_array_end = .;
     }
     __ctor_list = .;
