@@ -1,4 +1,4 @@
-
+#include <raw_ostream.h>
 
 #ifndef _VGAOUT_H_
 #define _VGAOUT_H_
@@ -61,14 +61,24 @@ struct charactor
 
 inline static charactor * raw_screen() {return reinterpret_cast<charactor *>(0xb8000);}
 void raw_print(int x, int y, const char *str);
-void initialize();
-void putchar(char ch);
-void puts(const char *str);
-void linefeed();
-void tap();
-void clear();
-void backspace();
-void puts(bool b);
+void vga_initialize(int width,int height);
+void vga_putchar(char ch);
+void vga_puts(const char *str);
+void vga_write(const char * str,size_t size);
+void vga_linefeed();
+void vga_tap();
+void vga_clear();
+void vga_backspace();
 } // namespace text
 
+class vga_ostream : public text::raw_ostream{
+public:
+explicit vga_ostream():text::raw_ostream(){
+    text::vga_initialize(0,19);
+}
+protected:
+virtual void write_impl(const char *str, size_t size) override{
+    text::vga_write(str,size);
+}
+};
 #endif

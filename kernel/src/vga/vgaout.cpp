@@ -16,42 +16,60 @@ void text::raw_print(int x,int y, const char * str){
 	}
 }
 
-void text::initialize(){
-    cursor.set(0,19);
-	screen = text::raw_screen();
-	screen += video_width*19;
+void text::vga_initialize(int width,int height){
+    cursor.set(width,height);
+	screen = text::raw_screen() + video_width*height+width;
 }
-void text::putchar(char ch){
+void text::vga_putchar(char ch){
     screen->ansi = ch;
 	screen->attribute = literColor;
 	screen++;
 	if (cursor.get() >= video_width * video_height - 1)
-		linefeed();
+		vga_linefeed();
 	screen->attribute = literColor;
 	cursor++;
 }
-
-void text::puts(const char * str){
-    while(*str != '\0') {
+void text::vga_write(const char * str,size_t size){
+	for(;size > 0; size--) {
         switch (*str)
 		{
 			case '\n':
-				linefeed();
+				vga_linefeed();
 				break;
 			case '\t':
-				tap();
+				vga_tap();
 				break;
 			case '\b':
-				backspace();
+				vga_backspace();
 				break;
 			default:
-				putchar(*str);
+				vga_putchar(*str);
 				break;
 		}
         str++;
     }
 }
-void text::linefeed(){
+void text::vga_puts(const char * str){
+    while(*str != '\0') {
+        switch (*str)
+		{
+			case '\n':
+				vga_linefeed();
+				break;
+			case '\t':
+				vga_tap();
+				break;
+			case '\b':
+				vga_backspace();
+				break;
+			default:
+				vga_putchar(*str);
+				break;
+		}
+        str++;
+    }
+}
+void text::vga_linefeed(){
     int y = cursor.gety();
 	if (y == video_height - 1)
 	{
@@ -68,33 +86,28 @@ void text::linefeed(){
 	screen->attribute = literColor;
 }
 
-void text::backspace(){
+void text::vga_backspace(){
     cursor = cursor.get() - 1;
 	*(uint8_t *)screen = 0;
 }
 
-void text::tap(){
+void text::vga_tap(){
     int x = cursor.getx(), y = cursor.gety();
 	x >>= 3;
 	x++;
 	x <<= 3;
 	if (x >= video_width)
 	{
-		linefeed();
+		vga_linefeed();
 		x = 0;
 	}
 	cursor.set(x, y);
 	screen = raw_screen() + y*video_width + x;
 }
 
-void text::clear(){
+void text::vga_clear(){
     for (screen = raw_screen();
 		screen < raw_screen() + video_width * video_height; screen++)
 		(*(uint16_t *)screen) = 0;
 	cursor = 0;
-}
-
-void text::puts(bool b){
-    static const char * table[] = { "false", "true" };
-	puts(table[b]);
 }
