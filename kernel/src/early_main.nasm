@@ -8,8 +8,8 @@ early_main:
     nop
     nop
     nop
-    mov rsp, 0xffff800000100000+0x100000/2*9-16
+    mov rsp, 0xffff800000100000+0x100000*9-16
     mov rbp, rsp
     extern main
-    call main
+    jmp main
 

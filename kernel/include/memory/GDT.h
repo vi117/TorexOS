@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <memory/address.h>
 #ifndef _GDT_H_
 #define _GDT_H_
 
@@ -15,7 +14,7 @@ enum class Type
 struct GDTR
 {
     uint16_t Limit;
-    phys_addr_t BaseAddress;
+    uint64_t BaseAddress;
     uint16_t padding;
 };
 
@@ -45,10 +44,13 @@ struct Entry8
     void setZero(){
         *reinterpret_cast<uint64_t * const>(this) = 0;
     }
-    void setDefault(){
+    void setDefault(bool isSystemSegment){
+        setZero();
+        if(isSystemSegment){
+            SystemSegment = true;
+            L = true;
+        }
         Present = true;
-        SystemSegment = true;
-        L = true;
         Granularity = true;
     }
 
@@ -65,32 +67,25 @@ struct Entry8
     }
 };
 
-struct Entry16
+struct Entry16 : public Entry8
 {
-    Entry8 lower;
     uint32_t ExtendBaseAddress;
     uint32_t reserved;
     void setZero()
     {
-        lower.setZero();
+        Entry8::setZero();
         ExtendBaseAddress = 0;
         reserved = 0;
     }
 
     void setAddress(uint64_t BaseAddress)
     {
-        lower.setAddress((uint32_t)(BaseAddress & 0x00000000FFFFFFFF));
+        Entry8::setAddress((uint32_t)(BaseAddress & 0x00000000FFFFFFFF));
         ExtendBaseAddress = BaseAddress >> 32;
     }
 };
-class Installer{
-    public:
-    Installer(phys_addr_t location):cur(location){}
-    private:
-    GDTR gdtr;
-    phys_addr_t cur;
-};
-#pragma pop
+
+#pragma pack(pop)
 
 } // namespace GDT
 #endif
