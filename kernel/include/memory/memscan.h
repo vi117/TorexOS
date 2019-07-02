@@ -1,9 +1,11 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <memory/address.h>
+#include <raw_ostream.h>
 
 #ifndef _MEMSCAN_H_
 #define _MEMSCAN_H_
+
 namespace memory
 {
     #pragma pack(push, 1)
@@ -27,7 +29,8 @@ namespace memory
         BadMemory
         };
     };
-    
     #pragma pack(pop)
+    
+    void printMemoryMap(text::raw_ostream & r);
 } // memory
 #endif

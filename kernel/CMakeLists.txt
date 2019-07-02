@@ -31,9 +31,9 @@ endforeach(list_arg)
 set(CXX_LIB_SRC_FILE ${TEMP})
 unset(TEMP)
 
-set(CXX_SRC_FILE "vga/cursor.cpp" "vga/vgaout.cpp")
+set(CXX_SRC_FILE  "memory/memscan.cpp" "vga/cursor.cpp" "vga/vgaout.cpp")
 
-set(CXX_SRC_FILE "main.cpp" ${CXX_SRC_FILE})
+set(CXX_SRC_FILE ${CXX_SRC_FILE} "main.cpp")
 
 set(TEMP "")
 foreach(list_arg ${CXX_SRC_FILE})
