@@ -13,13 +13,13 @@ extern "C"{
 void _init(void) 
 {
 	for ( func_ptr* func = &__init_array_start; func != &__init_array_end; func++ )
-		(**func)();
+		(*func)();
 }
  
 void _fini(void)
 {
 	for ( func_ptr* func = &__fini_array_start; func != &__fini_array_end; func++ )
-		(**func)();
+		(*func)();
 }
 }
 #pragma GCC pop_options 
