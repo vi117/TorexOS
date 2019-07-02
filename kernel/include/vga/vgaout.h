@@ -1,4 +1,5 @@
 #include <raw_ostream.h>
+#include <memory/address.h>
 
 #ifndef _VGAOUT_H_
 #define _VGAOUT_H_
@@ -59,7 +60,7 @@ struct charactor
 };
 #pragma pack(pop)
 
-inline static charactor * raw_screen() {return reinterpret_cast<charactor *>(0xb8000);}
+inline static charactor * raw_screen() {return reinterpret_cast<charactor *>(phys_to_ker(0xb8000));}
 void raw_print(int x, int y, const char *str);
 void vga_initialize(int width,int height);
 void vga_putchar(char ch);
@@ -73,7 +74,7 @@ void vga_backspace();
 
 class vga_ostream : public text::raw_ostream{
 public:
-explicit vga_ostream():text::raw_ostream(){
+explicit vga_ostream():text::raw_ostream(){	
     text::vga_initialize(0,19);
 }
 protected:

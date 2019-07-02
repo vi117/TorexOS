@@ -6,8 +6,8 @@ namespace GDT
 {
 enum class Type
 {
-    Code = 0x0A,
-    Data = 0x02,
+    KernelCode = 0x0A,
+    KernelData = 0x02,
     TSS = 0x09,
 };
 #pragma pack(push,1)
