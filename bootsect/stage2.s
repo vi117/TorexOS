@@ -574,7 +574,7 @@ MakePageTable:
         or eax, (1|(1<<1)|(1<<7))   ;PageSize, R/W, P bit set.
         mov [edi], eax
         add edi, 8
-        add esi, 0x00100000 ;2MB
+        add esi, 0x200000 ;2MB = Page Size.
         cmp edi, PageTableAddress+0x1000*3
         jb .loop
     
