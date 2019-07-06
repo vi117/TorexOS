@@ -12,7 +12,13 @@ namespace
 		uint64_t BaseAddress;
 		uint16_t padding;
 	};
-
+	enum ISRType {
+		interrupt_gate_16bit = 0b0110,
+		trap_gate_16bit = 0b0111,
+		interrupt_gate_32bit = 0b1110,
+		trap_gate_32bit = 0b1111,
+		task_gate_32bit = 0b0101,
+	};
 	struct IDT
 	{
 		uint16_t LowerHandlerOffset;
@@ -28,7 +34,7 @@ namespace
 				- 1110 : 32bit interrupt Gate
 				- 1111 : 32bit trap Gate
 				- 0101 : 32bit task Gate*/
-		uint8_t Type : 4;
+		ISRType Type : 4;
 			//NullSection. 0으로 채워넣으면 됨.
 		uint8_t NullSection2 : 1;
 			/* Descriptor Privilege Level 의 약자.
