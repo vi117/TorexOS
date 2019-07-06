@@ -70,6 +70,9 @@ void vga_linefeed();
 void vga_tap();
 void vga_clear();
 void vga_backspace();
+void vga_setCurrentColor(color c);
+color vga_getCurrentColor();
+void vga_updateScreenWithColor(color c);
 } // namespace text
 
 class vga_ostream : public text::raw_ostream{
