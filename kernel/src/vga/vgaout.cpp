@@ -1,9 +1,9 @@
 #include <vga/vgaout.h>
 #include <vga/cursor.h>
 
-text::Cursor cursor;
-text::charactor * screen;
-text::color literColor = {text::ForeCyan,text::BackBlack};
+static text::Cursor cursor;
+static text::charactor * screen;
+static text::color literColor = {text::ForeWhite,text::BackMagenta};
 
 void text::raw_print(int x,int y, const char * str){
     charactor * scr = text::raw_screen();
@@ -11,12 +11,13 @@ void text::raw_print(int x,int y, const char * str){
 	for (int i = 0; str[i] != 0; ++i)
 	{
 		scr->ansi = str[i];
-		scr->attribute = { text::ForeCyan, text::BackBlack };
+		scr->attribute = { text::ForeGreen, text::BackBlack };
 		scr++;
 	}
 }
 
 void text::vga_initialize(int width,int height){
+	vga_updateScreenWithColor(literColor);
     cursor.set(width,height);
 	screen = text::raw_screen() + video_width*height+width;
 }
@@ -76,8 +77,10 @@ void text::vga_linefeed(){
 		charactor * s = raw_screen();
 		for (; s < raw_screen() + (video_height - 1)*video_width; s++)
 			s[0] = s[video_width];
-		for (; s < raw_screen() + video_width*video_height; s++)
-			(*(uint16_t *)s) = 0;
+		for (; s < raw_screen() + video_width*video_height; s++){
+			s->ansi = 0;
+			s->attribute = literColor;
+		}
 		y--;
 	}
 	y++;
@@ -110,4 +113,16 @@ void text::vga_clear(){
 		screen < raw_screen() + video_width * video_height; screen++)
 		(*(uint16_t *)screen) = 0;
 	cursor = 0;
+}
+text::color text::vga_getCurrentColor(){
+	return literColor;
+}
+void text::vga_setCurrentColor(color c){
+	literColor = c;
+}
+void text::vga_updateScreenWithColor(color c){
+	auto scr = raw_screen();
+	for(size_t i = 0; i < video_width * video_height; i++){
+		scr[i].attribute = c;
+	}
 }
