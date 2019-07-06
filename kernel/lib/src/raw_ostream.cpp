@@ -131,37 +131,7 @@ raw_ostream &raw_ostream::write(const char *str, size_t size)
 
     return *this;
 }
-/*
- template <char C>
- static raw_ostream &write_padding(raw_ostream &OS, unsigned NumChars) {
-   static const char Chars[] = {C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C,
-                                C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C,
-                                C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C,
-                                C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C,
-                                C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C};
- 
-   // Usually the indentation is small, handle it with a fastpath.
-   if (NumChars < array_lengthof(Chars))
-     return OS.write(Chars, NumChars);
- 
-   while (NumChars) {
-     unsigned NumToWrite = std::min(NumChars,
-                                    (unsigned)array_lengthof(Chars)-1);
-     OS.write(Chars, NumToWrite);
-     NumChars -= NumToWrite;
-   }
-   return OS;
- }
- 
- /// indent - Insert 'NumSpaces' spaces.
- raw_ostream &raw_ostream::indent(unsigned NumSpaces) {
-   return write_padding<' '>(*this, NumSpaces);
- }
- 
- /// write_zeros - Insert 'NumZeros' nulls.
- raw_ostream &raw_ostream::write_zeros(unsigned NumZeros) {
-   return write_padding<'\0'>(*this, NumZeros);
- }*/
+
 void raw_ostream::copy_to_buffer(const char *ptr, size_t length)
 {
     //assert(length <= size_t(end - cur) && "Buffer overrun!");
