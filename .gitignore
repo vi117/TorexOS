@@ -8,3 +8,5 @@ output.map
 Testing/
 *_test
 CTestTestfile.cmake
+*.elf
+*.sym

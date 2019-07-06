@@ -1,6 +1,6 @@
-OUTPUT_FORMAT("binary")
+OUTPUT_FORMAT(elf64-x86-64)
 ENTRY(early_main)
-OUTPUT(kernel.bin)
+OUTPUT(kernel.elf)
 SECTIONS
 {
     KERNEL_BEGIN = .;

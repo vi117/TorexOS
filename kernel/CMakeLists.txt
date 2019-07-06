@@ -18,7 +18,7 @@ set ( CMAKE_BUILD_TYPE <Debug|Release> )
 
 set(CMAKE_VERBOSE_MAKEFILE true )
 set(CMAKE_CXX_COMPILER g++)
-set(CMAKE_CXX_FLAGS "-ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -fno-stack-protector")
+set(CMAKE_CXX_FLAGS "-ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -fno-stack-protector -g")
 set(CMAKE_ASM_NASM_OBJECT_FORMAT "elf64")
 set(CMAKE_EXE_LINKER_FLAGS "-nostdlib -T kernel.ld -Xlinker -Map=output.map")
 
@@ -45,8 +45,11 @@ set(ASM_SRC_FILE "src/early_main.nasm")
 
 include_directories("include/" "lib/include")
 
-add_executable(kernel.bin ${CXX_SRC_FILE} ${ASM_SRC_FILE} ${CXX_LIB_SRC_FILE})
+add_executable(kernel.elf ${CXX_SRC_FILE} ${ASM_SRC_FILE} ${CXX_LIB_SRC_FILE})
 
-add_custom_command(TARGET kernel.bin POST_BUILD
+add_custom_command(TARGET kernel.elf POST_BUILD
+    COMMAND objcopy --only-keep-debug kernel.elf kernel.sym
+    COMMAND objcopy --strip-debug kernel.elf
+    COMMAND objcopy -O binary kernel.elf kernel.bin
     COMMAND python "${PROJECT_BINARY_DIR}/tools/padding.py" kernel.bin
 )
