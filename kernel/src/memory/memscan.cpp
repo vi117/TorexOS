@@ -2,8 +2,8 @@
 //#include <raw_ostream.h>
 
 static const char * memory_type_name[]={
-    "usable",
-    "reserved",
+    "Free",
+    "Reserved",
     "ACPI_reclaim",
     "ACPI_NVS",
     "Bad"
