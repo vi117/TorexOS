@@ -2,6 +2,7 @@
 #include <cpp_constructor.h>
 #include <memory/memscan.h>
 
+[[noreturn]]
 int main()
 {
     _init();
