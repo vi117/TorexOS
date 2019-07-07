@@ -69,7 +69,7 @@ struct Entry8
     bool S : 1;
     //Descriptor Privilege Level
     uint8_t DPL : 2;
-    //it's true.
+    //Always it is true.
     bool Present : 1;
     uint8_t HighLimit : 4;
     //Available for use by kernel
@@ -95,12 +95,12 @@ struct Entry8
             setAddress(0);
             setLimit(0xfffff);
         }
-        Present = true;
-        Type = segmentType;
-        Granularity = true;
-        DPL = privilege;
-        S = !isSystemSegment;
-        L = (!isSystemSegment) && Executable();
+        this->Present = true;
+        this->Type = segmentType;
+        this->Granularity = true;
+        this->DPL = privilege;
+        this->S = !isSystemSegment;
+        this->L = (!isSystemSegment) && Executable();
     }
 
     void setAddress(uint32_t BaseAddress)
@@ -129,7 +129,7 @@ struct Entry8
     }
     bool Executable()
     {
-        return Type & DCbit;
+        return Type & Executablebit;
     }
 };
 

@@ -10,7 +10,9 @@ using ker_addr_t = uintptr_t;
 inline constexpr ker_addr_t phys_to_ker(phys_addr_t addr){
     return (addr|0xffff800000000000);
 }
-
+inline constexpr phys_addr_t ker_to_phys(ker_addr_t addr){
+    return (addr&(~0xffff800000000000));
+}
 inline constexpr unsigned long long operator "" _KB (unsigned long long a){
     return a*1024;
 }

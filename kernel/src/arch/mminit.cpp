@@ -5,8 +5,10 @@
 #include <stddef.h>
 #include <memory/address.h>
 #include <intrins.h>
+#include <stringutil.h>
 
-void memory_initialize(){
+extern char IST_END;
+void x86_64::gdt_and_tss_init(){
     auto gdt_addr = 0x6000;
     auto gdt_length = sizeof(GDT::Entry8)*3 + sizeof(GDT::Entry16);
 
@@ -14,18 +16,17 @@ void memory_initialize(){
     gdt[0].setZero();
     gdt[1].setLongmodeDefualt(false,GDT::RWbit | GDT::Executablebit, 0);
     gdt[2].setLongmodeDefualt(false,GDT::RWbit,0);
+
     auto gdt16 = static_cast<GDT::Entry16 *>(&gdt[3]);
     gdt16->setLongmodeDefualt(true,GDT::TSS_32bit,0);
-    gdt16->setAddress(0x6000 + gdt_length);
+    gdt16->setAddress(gdt_addr + gdt_length+sizeof(GDT::Entry16));
     gdt16->setLimit(sizeof(TSS) - 1);
-    auto tss = static_cast<TSS *>(static_cast<void *>(++gdt16));
+
+    auto tss = static_cast<TSS *>(static_cast<void *>(&gdt16[2]));
+    text::memset(tss,0,sizeof(TSS));
     tss->IOMapDisable();
+    tss->IST[0] = reinterpret_cast<uintptr_t>(&IST_END);
 
-    tss->IST[0];
-    
-    GDT::GDTR s;
-    s.BaseAddress = gdt_addr;
-    s.Limit = gdt_length;
-    loadgdtr(&s);
-
+    loadgdtr(gdt_addr,gdt_length);
+    loadtr(sizeof(GDT::Entry8)*3);
 }

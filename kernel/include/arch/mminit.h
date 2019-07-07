@@ -14,6 +14,9 @@ namespace x86_64
     void idt_init();
     void register_ISR(uint8_t index,void(*ptr)());
     void unregister_ISR(uint8_t);
+    /*void init_all(){
+        gdt_and_tss_init();
+    }*/
 }
 
 #endif
