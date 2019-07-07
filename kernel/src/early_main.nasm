@@ -8,14 +8,8 @@ early_main:
     nop
     nop
     nop
-    extern KERNEL_BEGIN, KERNEL_END
-    ;align KERNEL_END to 1MB, add 1MB and set to stack address.
-    mov rax, KERNEL_END
-    dec rax
-    and rax, 0xfffffffffff00000
-    add rax, 0x100000 * 2
-    sub rax, 16
-    mov rsp, rax
+    extern STACK_END
+    mov rsp, STACK_END
     mov rbp, rsp
     extern main
     jmp main

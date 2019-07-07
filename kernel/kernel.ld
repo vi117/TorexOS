@@ -44,6 +44,10 @@ SECTIONS
         BSS_END = .;
     } = 0xcccccccc
     KERNEL_END = .;
+    STACK_START = ALIGN(1M);
+    STACK_END = STACK_START + 1M;
+    IST_START = STACK_END;
+    IST_END = IST_START + 1M;
     /DISCARD/ : {
         *(.comment .note.* .eh_frame)
     }
