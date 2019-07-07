@@ -10,10 +10,13 @@ private:
         ss.write(str,length);
     }
 public:
+explicit s_rawstream(char *buf, size_t size) : text::raw_ostream(buf,size)  {}
+explicit s_rawstream() : text::raw_ostream()  {}
+
 std::ostringstream ss;
 };
 
-BOOST_AUTO_TEST_CASE(PassTest)
+BOOST_AUTO_TEST_CASE(PassTest1)
 {
     s_rawstream ss;
     ss << "test string";
@@ -24,4 +27,18 @@ BOOST_AUTO_TEST_CASE(PassTest)
         ss << i;
         BOOST_CHECK_EQUAL(ss.ss.str(), std::to_string(i));
     }
+}
+BOOST_AUTO_TEST_CASE(PassTest2){
+    char * buf = new char [8];
+    s_rawstream ss(buf,8);
+    ss << "test string";
+    ss.flush();
+    BOOST_CHECK_EQUAL(ss.ss.str(), std::string("test string"));
+    ss.ss.str("");
+    ss.ss.clear();
+    int i = 553355331;
+    ss << i;
+    ss.flush();
+    BOOST_CHECK_EQUAL(ss.ss.str(), std::to_string(i));
+    delete buf;
 }
