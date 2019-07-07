@@ -698,7 +698,8 @@ LongModeEntry:
 		inc rdi
 		jmp .MessageLoop
 	.MessageLoopEnd:
-    jmp 0xffff800000100000
+    mov rax, 0xffff800000100000
+    jmp rax
     cli
     jmp $
 EnterLongModeStr:
