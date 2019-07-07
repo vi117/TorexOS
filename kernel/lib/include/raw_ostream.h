@@ -14,12 +14,13 @@ private:
   char *cur;
   char *end;
 
+typedef raw_ostream& reference ;
 
 public:
   explicit raw_ostream() : start(nullptr), cur(nullptr), end(nullptr) {}
   explicit raw_ostream(char *buf, size_t size) : start(buf),cur(start), end(buf + size)  {}
-  raw_ostream(const raw_ostream &) = delete;
-  void operator=(const raw_ostream &) = delete;
+  raw_ostream(const reference ) = delete;
+  void operator=(const reference ) = delete;
 
   void flush()
   {
@@ -43,7 +44,7 @@ public:
   {
     return cur >= end;
   }
-  raw_ostream &operator<<(char ch)
+  reference operator<<(char ch)
   {
     if (isBufferFull())
     {
@@ -53,7 +54,7 @@ public:
     return *this;
   }
 
-  raw_ostream &operator<<(signed char ch)
+  reference operator<<(signed char ch)
   {
     if (isBufferFull())
     {
@@ -62,7 +63,7 @@ public:
     *cur++ = ch;
     return *this;
   }
-  raw_ostream &operator<<(unsigned char ch)
+  reference operator<<(unsigned char ch)
   {
     if (isBufferFull())
     {
@@ -71,41 +72,41 @@ public:
     *cur++ = ch;
     return *this;
   }
-  raw_ostream &write(const char *str, size_t length);
-  raw_ostream &operator<<(const char *str)
+  reference write(const char *str, size_t length);
+  reference operator<<(const char *str)
   {
     return write(str, text::strlen(str));
   }
-  raw_ostream &operator<<(unsigned long N);
-  raw_ostream &operator<<(long N);
-  raw_ostream &operator<<(unsigned long long N);
-  raw_ostream &operator<<(long long N);
-  raw_ostream &operator<<(const void *P);
+  reference operator<<(unsigned long N);
+  reference operator<<(long N);
+  reference operator<<(unsigned long long N);
+  reference operator<<(long long N);
+  reference operator<<(const void *P);
 
 
-  raw_ostream &operator<<(unsigned int N)
+  reference operator<<(unsigned int N)
   {
     return this->operator<<(static_cast<unsigned long>(N));
   }
-  raw_ostream &operator<<(int N)
+  reference operator<<(int N)
   {
     return this->operator<<(static_cast<long>(N));
   }
-  //raw_ostream &operator<<(double N);
+  //reference operator<<(double N);
 
-  raw_ostream &write_hex(unsigned long long N);
+  reference write_hex(unsigned long long N);
 
-  //raw_ostream &indent(unsigned NumSpaces);
+  //reference indent(unsigned NumSpaces);
 
   /// write_zeros - Insert 'NumZeros' nulls.
-  //raw_ostream &write_zeros(unsigned NumZeros);
+  //reference write_zeros(unsigned NumZeros);
 protected:
   virtual void write_impl(const char *str, size_t size) = 0;
 
 private:
   void flush_nonempty();
   void copy_to_buffer(const char *str, size_t size);
-  raw_ostream &write(unsigned char);
+  reference write(unsigned char);
 };
 } // namespace text
 
