@@ -144,7 +144,7 @@ struct Entry16 : public Entry8
         reserved = 0;
     }
 
-    void setAddress(uint64_t BaseAddress)
+    void setAddress(uintptr_t BaseAddress)
     {
         Entry8::setAddress((uint32_t)(BaseAddress & 0x00000000FFFFFFFF));
         ExtendBaseAddress = BaseAddress >> 32;

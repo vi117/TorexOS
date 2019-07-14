@@ -8,6 +8,7 @@ struct TSS
 		uint32_t reserved1;
 		uint64_t RSP[3];
 		uint64_t reserved2;
+		/*linear address */
 		uint64_t IST[7];
 		uint64_t reserved3;
 		uint16_t reserved;

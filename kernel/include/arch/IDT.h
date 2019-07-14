@@ -56,7 +56,6 @@ namespace
 			MiddleHandlerOffset = static_cast<uint16_t>((addr >> 16) & 0xFFFF);
 			HighHandlerOffset = static_cast<uint32_t>(addr >> 32);
 		}
-
 	};
     #pragma pack(pop)
 }

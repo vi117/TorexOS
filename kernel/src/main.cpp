@@ -8,8 +8,9 @@ int main()
 {
     _init();
     vga_ostream out;
-    out << "Init Gdt and Tss.\n";
-    x86_64::gdt_and_tss_init();
+    out << "Initialize GDT, TSS and IDT.\n";
+    x86_64::init_all();
+    asm("int $3");
     while(1){
         /* do nothing. */
     }

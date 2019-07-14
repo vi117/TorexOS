@@ -12,9 +12,17 @@ errstream debug;
 void panic(const char * message){
     clearinterruptflag();
     err << message;
+    err << "\ncaller address : " << __GET_CALLER(0);
     for(;;);
 }
-
+#include <arch/context.h>
+void panicInException(int handler_num,const char *message){
+    clearinterruptflag();
+    err << message;
+    err << " occured in " << handler_num << " handler";
+    err << "\ncaller address : " << x86_64::getContextInException()->rip;
+    for(;;);
+}
 void assert_impl(const char * message,
                     const char * file,
                     const char * function,
@@ -23,6 +31,7 @@ void assert_impl(const char * message,
     err << message
         << "\nfile :" <<file
         << "\nfunc :" <<function
-        << "\nline :" <<line;
+        << "\nline :" <<line
+        << "\ncaller address : " << __GET_CALLER(0);
     for(;;);
 }

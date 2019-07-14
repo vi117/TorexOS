@@ -1,5 +1,6 @@
 #include<stdint.h>
 #include<memory/address.h>
+#include<linear_allocator.h>
 
 #ifndef _MMINIT_H_
 #define _MMINIT_H_
@@ -10,13 +11,12 @@ x86_64
 */
 namespace x86_64
 {
-    void gdt_and_tss_init();
-    void idt_init();
-    void register_ISR(uint8_t index,void(*ptr)());
+    // @param allocator return linear address.
+    void gdt_and_tss_init(util::LinearAllocator<uint8_t> & allocator);
+    void idt_init(util::LinearAllocator<uint8_t> & allocator);
+    void register_ISR(uint8_t index,void(*handler)());
     void unregister_ISR(uint8_t);
-    /*void init_all(){
-        gdt_and_tss_init();
-    }*/
+    void init_all();
 }
 
 #endif

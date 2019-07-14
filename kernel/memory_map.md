@@ -1,7 +1,7 @@
 Physical Map
 =============
 | Name                    | Origin | Length | End    |
-| :---------------------- | ------ | ------ | ------ |
+| ----------------------- | ------ | ------ | ------ |
 | disk_number             | 0x500  | 4      | 0x504  |
 | vbe_block               | 0x504  | 0x100  | 0x604  |
 | system_address_map_size | 0x60C  | 4      | 0x610  |

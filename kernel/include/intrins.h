@@ -28,6 +28,17 @@ static inline void loadtr(uint16_t offset)
 {
     asm volatile ( "ltr %0" : : "r"(offset) );
 }
+static inline void loadidtr(phys_addr_t base,uint16_t limit)
+{
+#pragma pack(push,1)
+    struct{
+        uint16_t Limit;
+    uint64_t BaseAddress;
+    uint16_t padding;
+    } idtr = {limit,base,0};
+    asm volatile ( "lidt %0" : : "m"(idtr));
+#pragma pack(pop)
+}
 //clear interrupt flag.
 static inline void clearinterruptflag(){
     __asm__ __volatile__("cli": : :"memory");
@@ -35,5 +46,11 @@ static inline void clearinterruptflag(){
 //set interrupt flag.
 static inline void setinterruptflag(){
     __asm__ __volatile__("sti": : :"memory");
+}
+static inline void simplebarrior(){
+    __asm__ __volatile__("nop": : :"memory");
+}
+static inline void mfence(){
+    __asm__ __volatile__("mfence": : :"memory");
 }
 #endif

@@ -10,3 +10,5 @@ Testing/
 CTestTestfile.cmake
 *.elf
 *.sym
+kernel/Makefile
+kernel/lib/Makefile

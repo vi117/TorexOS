@@ -15,11 +15,6 @@ SECTIONS
         *(.rodata .rodata.*)
         RODATA_END = .;
     } = 0xcccccccc
-    .data BLOCK(0x200)  : ALIGN(0x200) {
-        DATA_START = .;
-        *(.data .data.*)
-        DATA_END = .;
-    } = 0xcccccccc
     .init_array :{
         __init_array_start = .;
         KEEP(*(.init_array))
@@ -30,12 +25,17 @@ SECTIONS
         KEEP(*(.fini_array))
         __fini_array_end = .;
     }
-    __ctor_list = .;
+    /*__ctor_list = .;
 	.ctors : { *(.ctors) }
 	__ctor_end = .;
 	__dtor_list = .;
 	.dtors : { *(.dtors) }
-	__dtor_end = .;
+	__dtor_end = .;*/
+    .data BLOCK(0x200)  : ALIGN(0x200) {
+        DATA_START = .;
+        *(.data .data.*)
+        DATA_END = .;
+    } = 0xcccccccc
 
     .bss BLOCK(0x200) : ALIGN(0x200) {
         BSS_START = .;
@@ -48,7 +48,8 @@ SECTIONS
     STACK_END = STACK_START + 1M;
     IST_START = STACK_END;
     IST_END = IST_START + 1M;
-    /DISCARD/ : {
-        *(.comment .note.* .eh_frame)
+
+     /DISCARD/ : {
+        *(.plt .plt.* .gnu.* .dynsym .dynstr .dynbss .dynamic .interp .rela.* .got .got.plt .stab .stabstr .comment .note.* .eh_frame .eh_frame_hdr)
     }
 }

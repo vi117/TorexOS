@@ -20,6 +20,7 @@ set(CMAKE_VERBOSE_MAKEFILE true )
 set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_CXX_FLAGS "-ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -fno-stack-protector -g")
 set(CMAKE_ASM_NASM_OBJECT_FORMAT "elf64")
+set(CMAKE_ASM_NASM_FLAGS "-g")
 set(CMAKE_EXE_LINKER_FLAGS "-nostdlib -T kernel.ld -Xlinker -Map=output.map")
 
 set(CXX_LIB_SRC_FILE "stringutil.cpp" "raw_ostream.cpp")
@@ -35,7 +36,8 @@ set(CXX_SRC_FILE
 "debug/debug.cpp"
 "memory/memscan.cpp" 
 "vga/cursor.cpp" 
-"vga/vgaout.cpp")
+"vga/vgaout.cpp"
+"arch/mminit.cpp")
 
 set(CXX_SRC_FILE ${CXX_SRC_FILE} "main.cpp")
 
@@ -45,7 +47,7 @@ foreach(list_arg ${CXX_SRC_FILE})
 endforeach(list_arg)
 set(CXX_SRC_FILE ${TEMP})
 
-set(ASM_SRC_FILE "src/early_main.nasm")
+set(ASM_SRC_FILE "src/arch/early_main.nasm" "src/arch/ISR.nasm")
 
 include_directories("include/" "lib/include")
 
@@ -53,7 +55,7 @@ add_executable(kernel.elf ${CXX_SRC_FILE} ${ASM_SRC_FILE} ${CXX_LIB_SRC_FILE})
 
 add_custom_command(TARGET kernel.elf POST_BUILD
     COMMAND objcopy --only-keep-debug kernel.elf kernel.sym
-    COMMAND objcopy --strip-debug kernel.elf
+    COMMAND objcopy --strip-all kernel.elf
     COMMAND objcopy -O binary kernel.elf kernel.bin
     COMMAND python "${PROJECT_BINARY_DIR}/tools/padding.py" kernel.bin
 )

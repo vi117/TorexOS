@@ -13,7 +13,7 @@ namespace util
         Ty * allocate(size_t n){
             auto ret = addr;
             addr += n;
-            if(addr => end){
+            if(addr >= end){
                 addr = ret;
                 return nullptr;
             }
