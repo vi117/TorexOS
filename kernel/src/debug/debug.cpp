@@ -18,9 +18,8 @@ void panic(const char * message){
 #include <arch/context.h>
 void panicInException(int handler_num,const char *message){
     clearinterruptflag();
-    err << message;
+    err << message<< " at " << x86_64::getContextInException()->rip;
     err << " occured in " << handler_num << " handler";
-    err << "\ncaller address : " << x86_64::getContextInException()->rip;
     for(;;);
 }
 void assert_impl(const char * message,

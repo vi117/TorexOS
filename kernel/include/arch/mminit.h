@@ -1,6 +1,6 @@
 #include<stdint.h>
 #include<memory/address.h>
-#include<linear_allocator.h>
+#include<alloc_policy/linear_allocator.h>
 
 #ifndef _MMINIT_H_
 #define _MMINIT_H_
