@@ -5,8 +5,8 @@
 
 namespace util
 {
-    template<typename Ty>
-    class LinearAllocator{
+    //not thread safe.
+    template<typename Ty> class LinearAllocator{
     public:
         explicit LinearAllocator(Ty * start_ptr ,Ty * end_ptr )
             :addr(start_ptr),end(end_ptr){}

@@ -3,7 +3,7 @@ include_directories("include/" ${Boost_INCLUDE_DIRS})
 set(CMAKE_VERBOSE_MAKEFILE true )
 
 set(SRC_FILE "src/stringutil.cpp" "src/raw_ostream.cpp")
-set(TEST_FILE "test/stringutil_test.cpp" "test/raw_ostream_test.cpp")
+set(TEST_FILE "test/stringutil_test.cpp" "test/raw_ostream_test.cpp" "test/algo_sort_test.cpp")
 
 add_library("kernel" ${SRC_FILE})
 
