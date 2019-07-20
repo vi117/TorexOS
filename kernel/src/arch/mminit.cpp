@@ -14,9 +14,8 @@ static constexpr int gdt_entry8_num=3;
 static constexpr int gdt_entry16_num=1;
 void x86_64::gdt_and_tss_init(util::LinearAllocator<uint8_t> & allocator){
     auto gdt_length = sizeof(GDT::Entry8)*3 + sizeof(GDT::Entry16);
-    auto gdt_addr = (reinterpret_cast<ker_addr_t>
-        (allocator.allocate(gdt_length)));
-    GDT::Entry8 * gdt = reinterpret_cast<GDT::Entry8 *>(gdt_addr);
+    auto gdt_addr = ker_addr_t(allocator.allocate(gdt_length));
+    GDT::Entry8 * gdt = gdt_addr.to_ptr<GDT::Entry8>();
     gdt[0].setZero();
     gdt[1].setLongmodeDefualt(false,GDT::RWbit | GDT::Executablebit, 0);
     gdt[2].setLongmodeDefualt(false,GDT::RWbit,0);
@@ -32,7 +31,7 @@ void x86_64::gdt_and_tss_init(util::LinearAllocator<uint8_t> & allocator){
     tss->IOMapDisable();
     tss->IST[0] = reinterpret_cast<uintptr_t>(&IST_END);
 
-    loadgdtr(ker_to_phys(gdt_addr),gdt_length-1);
+    loadgdtr(gdt_addr.to_phys(),gdt_length-1);
     loadtr(sizeof(GDT::Entry8)*3);
 }
 
@@ -52,13 +51,14 @@ void x86_64::idt_init(util::LinearAllocator<uint8_t> & allocator){
         temp.SetHandler(interrupt_handler_vector[i]);
         idt_addr[i] = temp;
     }
-    loadidtr(ker_to_phys((ker_addr_t)idt_addr),idt_count * sizeof(IDT) - 1);
+    loadidtr((ker_addr_t(idt_addr)).to_phys(),idt_count * sizeof(IDT) - 1);
 }
 
 void x86_64::init_all(){
-    util::LinearAllocator<uint8_t> allocator
-        (reinterpret_cast<uint8_t *>(phys_to_ker(0x6000)),
-        reinterpret_cast<uint8_t *>(phys_to_ker(0x7000)));
+    auto buffer = phys_addr_t(0x6000).to_ker();
+    util::LinearAllocator<uint8_t> allocator(
+        buffer.to_ptr<uint8_t>(), (buffer + 0x1000).to_ptr<uint8_t>()
+    );
     gdt_and_tss_init(allocator);
     idt_init(allocator);
 }

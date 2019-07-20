@@ -60,7 +60,7 @@ struct charactor
 };
 #pragma pack(pop)
 
-inline static charactor * raw_screen() {return reinterpret_cast<charactor *>(phys_to_ker(0xb8000));}
+inline static charactor * raw_screen() {return phys_addr_t(0xb8000).to_ker().to_ptr<charactor>();}
 void raw_print(int x, int y, const char *str);
 void vga_initialize(int width,int height);
 void vga_putchar(char ch);

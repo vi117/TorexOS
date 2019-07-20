@@ -20,7 +20,7 @@ static inline void loadgdtr(phys_addr_t base,uint16_t limit)
         uint16_t Limit;
     uint64_t BaseAddress;
     uint16_t padding;
-    } gdtr = {limit,base,0};
+    } gdtr = {limit,base.address,0};
     asm volatile ( "lgdt %0" : : "m"(gdtr));
 #pragma pack(pop)
 }
@@ -35,7 +35,7 @@ static inline void loadidtr(phys_addr_t base,uint16_t limit)
         uint16_t Limit;
     uint64_t BaseAddress;
     uint16_t padding;
-    } idtr = {limit,base,0};
+    } idtr = {limit,base.address,0};
     asm volatile ( "lidt %0" : : "m"(idtr));
 #pragma pack(pop)
 }
