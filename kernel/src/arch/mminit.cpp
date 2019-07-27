@@ -15,7 +15,7 @@ static constexpr int gdt_entry16_num=1;
 void x86_64::gdt_and_tss_init(util::LinearAllocator<uint8_t> & allocator){
     auto gdt_length = sizeof(GDT::Entry8)*3 + sizeof(GDT::Entry16);
     auto gdt_addr = ker_addr_t(allocator.allocate(gdt_length));
-    GDT::Entry8 * gdt = gdt_addr.to_ptr<GDT::Entry8>();
+    GDT::Entry8 * gdt = gdt_addr.to_ptr_of<GDT::Entry8>();
     gdt[0].setZero();
     gdt[1].setLongmodeDefualt(false,GDT::RWbit | GDT::Executablebit, 0);
     gdt[2].setLongmodeDefualt(false,GDT::RWbit,0);
@@ -57,7 +57,7 @@ void x86_64::idt_init(util::LinearAllocator<uint8_t> & allocator){
 void x86_64::init_all(){
     auto buffer = phys_addr_t(0x6000).to_ker();
     util::LinearAllocator<uint8_t> allocator(
-        buffer.to_ptr<uint8_t>(), (buffer + 0x1000).to_ptr<uint8_t>()
+        buffer.to_ptr_of<uint8_t>(), (buffer + 0x1000).to_ptr_of<uint8_t>()
     );
     gdt_and_tss_init(allocator);
     idt_init(allocator);

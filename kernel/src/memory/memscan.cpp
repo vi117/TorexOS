@@ -10,10 +10,10 @@ static const char * memory_type_name[]={
 };
 
 void memory::printMemoryMap(text::raw_ostream & os){
-    uint32_t length = *phys_addr_t(0x610-4).to_ker().to_ptr<uint32_t>();
-    auto dscr = phys_addr_t(0x610).to_ker().to_ptr<memory::AddressRangeDescriptor>();
-    os << length/24 << "\n";
-    for(size_t i = 0; i < length; i+= sizeof(*dscr))
+    uint32_t length = e820_mmap_entry_count();
+    auto dscr = e820_mmap_entry();
+    os << length << "\n";
+    for(size_t i = 0; i < length; i++)
     {    
         os << (void *)dscr->base.address <<" "<< dscr->length << " "
         << memory_type_name[static_cast<int>(dscr->type)-1] << "\n";
