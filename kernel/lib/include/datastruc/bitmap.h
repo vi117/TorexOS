@@ -5,6 +5,7 @@ namespace util
 {
 class bitmap{
 public:
+    bitmap(uint64_t * buf):data(buf){}
     struct proxy{
         uint64_t * data;
         size_t index;
