@@ -11,11 +11,11 @@ enum VGA
 
 text::Cursor & text::Cursor::operator++()
 {
-	++x;
-	if (x > video_width)
+	x++;
+	if (x >= video_width)
 	{
 		x = 0;
-		x++;
+		y++;
 	}
 	update(); 
 	return *this;

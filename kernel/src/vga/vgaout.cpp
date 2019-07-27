@@ -25,10 +25,13 @@ void text::vga_putchar(char ch){
     screen->ansi = ch;
 	screen->attribute = literColor;
 	screen++;
-	if (cursor.get() >= video_width * video_height - 1)
+	if (cursor.get() >= video_width * video_height - 1){
 		vga_linefeed();
-	screen->attribute = literColor;
-	cursor++;
+	}
+	else{
+		screen->attribute = literColor;
+		cursor++;
+	}
 }
 void text::vga_write(const char * str,size_t size){
 	for(;size > 0; size--) {
@@ -91,7 +94,7 @@ void text::vga_linefeed(){
 
 void text::vga_backspace(){
     cursor = cursor.get() - 1;
-	*(uint8_t *)screen = 0;
+	*(uint8_t *)screen-- = 0;
 }
 
 void text::vga_tap(){
