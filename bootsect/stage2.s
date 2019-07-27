@@ -537,6 +537,12 @@ ProtectedMode:
     push 0
     call printMessage
 
+    mov eax,[system_address_map_size]
+    mov edx,0
+    mov ecx, 24
+    div ecx
+    mov [system_address_map_size],eax
+
 CheckLongModeSupport:
     mov eax, 0x80000001
 	cpuid
