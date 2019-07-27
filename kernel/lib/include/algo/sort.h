@@ -46,13 +46,13 @@ void insertion_sort(RandomAccessIter begin, RandomAccessIter end)
     auto sorted = begin;
     while (++sorted != end)
     {
-        if (*sorted >= *(sorted - 1))
+        if (*(sorted - 1) < *sorted)
             continue;
         auto cur = sorted;
         auto temp = move(*sorted);
         do{
             cur--;
-            if (*cur <= temp){
+            if (!(temp < *cur)){
                 cur++;
                 break;
             }
@@ -75,7 +75,7 @@ void insertion_sort(RandomAccessIter begin, RandomAccessIter end, Compare pred)
         auto temp = move(*sorted);
         do{
             cur--;
-            if (!pred(temp,*cur)){
+            if (!(pred(temp,*cur))){
                 cur++;
                 break;
             }
