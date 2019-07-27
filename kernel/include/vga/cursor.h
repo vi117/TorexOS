@@ -20,7 +20,7 @@ inline void OffsetToxy(uint16_t offset, int &x, int &y)
 class Cursor
 {
   public:
-	Cursor() : x(0), y(0) {}
+	constexpr Cursor() : x(0), y(0) {}
 	uint16_t get() const { return xyToOffset(x, y); };
 	void set(uint16_t offset)
 	{

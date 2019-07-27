@@ -17,7 +17,7 @@ private:
 typedef raw_ostream& reference ;
 
 public:
-  explicit raw_ostream() : start(nullptr), cur(nullptr), end(nullptr) {}
+  constexpr explicit raw_ostream() : start(nullptr), cur(nullptr), end(nullptr) {}
   explicit raw_ostream(char *buf, size_t size) : start(buf),cur(start), end(buf + size)  {}
   raw_ostream(const reference ) = delete;
   void operator=(const reference ) = delete;
@@ -73,7 +73,7 @@ public:
     return *this;
   }
   reference write(const char *str, size_t length);
-  reference operator<<(const char *str)
+  inline reference operator<<(const char *str)
   {
     return write(str, text::strlen(str));
   }

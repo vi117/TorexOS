@@ -60,7 +60,7 @@ struct charactor
 };
 #pragma pack(pop)
 
-inline static charactor * raw_screen() {return phys_addr_t(0xb8000).to_ker().to_ptr<charactor>();}
+inline static charactor * raw_screen() {return phys_addr_t(0xb8000).to_ker().to_ptr_of<charactor>();}
 void raw_print(int x, int y, const char *str);
 void vga_initialize(int width,int height);
 void vga_putchar(char ch);
@@ -77,9 +77,8 @@ void vga_updateScreenWithColor(color c);
 
 class vga_ostream : public text::raw_ostream{
 public:
-explicit vga_ostream():text::raw_ostream(){	
-    text::vga_initialize(0,19);
-}
+/*explicit vga_ostream():text::raw_ostream(){	
+}*/
 protected:
 virtual void write_impl(const char *str, size_t size) override{
     text::vga_write(str,size);
