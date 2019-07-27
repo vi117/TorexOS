@@ -8,7 +8,7 @@
 
 class errstream : public text::raw_ostream{
 public:
-    explicit errstream():text::raw_ostream(){}
+    constexpr explicit errstream():text::raw_ostream(){}
 private:
     virtual void write_impl(const char *, size_t) override;
 };
