@@ -37,8 +37,8 @@ struct optional
 
     constexpr value_type & value() & { return mValue.value;};
     constexpr const value_type & value() const & {return mValue.value;}
-    constexpr value_type&& value() && {return mValue.value;}
-    constexpr const value_type&& value() const &&{ return mValue.value;}
+    constexpr value_type&& value() && {return move(mValue.value);}
+    constexpr const value_type&& value() const &&{ return move(mValue.value);}
 
     template<typename U>
     constexpr value_type value_or(U&& default_value) const& {
@@ -51,10 +51,6 @@ struct optional
         return this->has_value()
         ? (move(this->value()))
         : static_cast<value_type>(forward<U>(default_value));
-    }
-
-    void reset(){
-
     }
 
     ~optional(){
