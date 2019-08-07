@@ -6,11 +6,11 @@
 namespace util
 {
     //not thread safe.
-    template<typename Ty> class LinearAllocator{
+    class LinearAllocator{
     public:
-        explicit LinearAllocator(Ty * start_ptr ,Ty * end_ptr )
+        explicit LinearAllocator(uint8_t * start_ptr ,uint8_t * end_ptr )
             :addr(start_ptr),end(end_ptr){}
-        Ty * allocate(size_t n){
+        inline void * allocate_bytes(size_t n){
             auto ret = addr;
             addr += n;
             if(addr >= end){
@@ -19,10 +19,10 @@ namespace util
             }
             return ret;
         }
-        void deallocate(Ty *){/*do nothing.*/}
+        void deallocate_bytes(uint8_t *){/*do nothing.*/}
     private:
-        Ty * addr;
-        Ty * end;
+        uint8_t * addr;
+        uint8_t * end;
     };
 } // util
 
