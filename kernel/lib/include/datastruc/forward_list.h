@@ -48,7 +48,7 @@ public:
         iterator &operator++() { pos = pos->next; return *this; }
         iterator &operator++(int) { return operator++(); }
         Ty &operator*() { return pos->data; }
-        Ty *operator->() { return addressof(operator*()); }
+        Ty *operator->() { return pos; }
         constexpr bool operator==(iterator const &rhs) const noexcept { return pos == rhs.pos; }
         constexpr bool operator!=(iterator const &rhs) const noexcept { return pos != rhs.pos; }
 
@@ -90,19 +90,22 @@ public:
         if (n != nullptr)
             destroy_node(n);
     }
-    optional<value_type> front() const
+    value_type & front() const{
+        return base_type::front_node()->data
+    }
+    optional<value_type> front_opt() const
     {
         auto n = base_type::front_node();
         if (n != nullptr)
             return n->data;
         return nullopt;
     }
-    optional<value_type *> front_pointer()
+    value_type * front_pointer()
     {
         auto n = base_type::front_node();
         if (n != nullptr)
             return addressof(n->data);
-        return nullopt;
+        return nullptr;
     }
 
 private:

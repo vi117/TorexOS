@@ -6,13 +6,13 @@ namespace util
 
 template <typename Ty>
 inline typename remove_reference<Ty>::type &&
-move(Ty &&arg)
+move(Ty &&arg) noexcept
 {
     return static_cast<typename remove_reference<Ty>::type &&>(arg);
 }
 
 //exchange value stored at left and right.
-template <typename Ty> inline void swap(Ty &left, Ty &right)
+template <typename Ty> inline void swap(Ty &left, Ty &right) noexcept
 {
     Ty temp(util::move(left));
     left = util::move(right);
@@ -39,5 +39,8 @@ inline Ty *addressof(Ty & Val) noexcept
         (&const_cast<char &>(
             reinterpret_cast<const volatile char &>(Val)))));
 }
+
+template<class T>
+typename add_rvalue_reference<T>::type declval() noexcept;
 
 } // util
