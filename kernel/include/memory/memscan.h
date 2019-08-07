@@ -11,7 +11,7 @@ namespace memory
 {
     /*arch*/
     #pragma pack(push, 1)
-    struct e820MmapEtnry
+    struct e820MmapEntry
     {
         enum class RegionType : uint32_t;
         phys_addr_t base;
@@ -38,7 +38,7 @@ namespace memory
     };
     #pragma pack(pop)
     force_inline size_t e820_mmap_entry_count(){ return *(phys_addr_t(0x610-4).to_ker().to_ptr_of<size_t>());}
-    force_inline e820MmapEtnry * e820_mmap_entry(){return phys_addr_t(0x610).to_ker().to_ptr_of<e820MmapEtnry>();}
+    force_inline e820MmapEntry * e820_mmap_entry(){return phys_addr_t(0x610).to_ker().to_ptr_of<e820MmapEntry>();}
     void printMemoryMap(text::raw_ostream & r);
 } // memory
 #endif
