@@ -29,30 +29,12 @@ struct address_base
         address -= rhs;
         return static_cast<address_t &>(*this);
     }
-    inline constexpr bool operator==(address_t rhs) const
-    {
-        return address == rhs.address;
-    }
-    inline constexpr bool operator!=(address_t rhs) const
-    {
-        return address != rhs.address;
-    }
-    inline constexpr bool operator<(address_t rhs) const
-    {
-        return address < rhs.address;
-    }
-    inline constexpr bool operator>(address_t rhs) const
-    {
-        return address > rhs.address;
-    }
-    inline constexpr bool operator>=(address_t rhs) const
-    {
-        return address >= rhs.address;
-    }
-    inline constexpr bool operator<=(address_t rhs) const
-    {
-        return address <= rhs.address;
-    }
+    inline constexpr bool operator==(address_t rhs) const{return address == rhs.address;}
+    inline constexpr bool operator!=(address_t rhs) const{ return address != rhs.address;}
+    inline constexpr bool operator<(address_t rhs) const{return address < rhs.address;}
+    inline constexpr bool operator>(address_t rhs) const{return address > rhs.address;}
+    inline constexpr bool operator>=(address_t rhs) const{return address >= rhs.address;}
+    inline constexpr bool operator<=(address_t rhs) const{return address <= rhs.address;}
     
     /*must be alignment expressed as 2^n.*/
     constexpr address_t align(uint64_t alignment) const{
@@ -105,6 +87,10 @@ inline constexpr unsigned long long operator"" _KB(unsigned long long a)
 inline constexpr unsigned long long operator"" _MB(unsigned long long a)
 {
     return a * 1024 * 1024;
+}
+inline constexpr unsigned long long operator"" _GB(unsigned long long a)
+{
+    return a * 1024 * 1024 * 1024;
 }
 
 } // namespace address
