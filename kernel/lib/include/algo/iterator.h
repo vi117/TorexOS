@@ -3,18 +3,18 @@
 
 namespace util
 {
-    struct bidirectional_iterator_tag {};
     struct forward_iterator_tag {};
+    struct bidirectional_iterator_tag : forward_iterator_tag {};
     struct input_iterator_tag {};
     struct output_iterator_tag {};
     struct random_access_iterator_tag {};
 
     template <typename Iterator> class iterator_traits{
-        using difference_type = Iterator::difference_type;
-        using value_type = Iterator::value_type;
-        using pointer = Iterator::pointer;
-        using reference = Iterator::reference;
-        using iterator_category = Iterator::iterator_category;
+        using difference_type = typename Iterator::difference_type;
+        using value_type = typename Iterator::value_type;
+        using pointer = typename Iterator::pointer;
+        using reference = typename Iterator::reference;
+        using iterator_category = typename Iterator::iterator_category;
     };
 
     template <typename Ty> 
