@@ -655,7 +655,7 @@ SwitchToLongMode:
     mfence
 
     mov eax, cr4
-	or eax, 0x20    ;Set PAE bit
+	or eax, (0x20 | 0x600)    ;Set PAE bit and OSXMMEXCEPT bit and OSFXSR bit
 	mov cr4, eax
 	
 	mov eax, PageTableAddress
@@ -667,9 +667,10 @@ SwitchToLongMode:
 	wrmsr
 	
 	mov eax, cr0
-	or eax, 0xE0000000
-	xor eax, 0x60000000
+	or eax, 0xE000000E
+	xor eax, 0x60000004
     ;set NW = 0, CD = 0, PG = 1
+    ;set TS = 1,EM = 0,MP = 1
 	mov cr0, eax
     jmp 0x08:LongModeEntry
 bits 64
@@ -704,6 +705,13 @@ LongModeEntry:
 		inc rdi
 		jmp .MessageLoop
 	.MessageLoopEnd:
+FPU_Initialize:
+    ;mov eax, cr4
+	;or eax, 0x620
+	;mov cr4, eax
+    clts
+    finit
+JumpKernelEntry:
     mov rax, 0xffff800000100000
     jmp rax
     cli
