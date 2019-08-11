@@ -2,8 +2,13 @@
 include_directories("include/" ${Boost_INCLUDE_DIRS})
 set(CMAKE_VERBOSE_MAKEFILE true )
 
-set(SRC_FILE "src/stringutil.cpp" "src/raw_ostream.cpp")
-set(TEST_FILE "test/stringutil_test.cpp" "test/raw_ostream_test.cpp" "test/algo_sort_test.cpp")
+set(SRC_FILE "src/stringutil.cpp" 
+"src/raw_ostream.cpp" 
+"src/math/ilog2.cpp"
+"src/alloc_policy/buddy_allocator.cpp")
+set(TEST_FILE 
+"test/stringutil_test.cpp" "test/raw_ostream_test.cpp" "test/algo_sort_test.cpp"
+"test/my_forward_list_test.cpp")
 
 add_library("kernel" ${SRC_FILE})
 
