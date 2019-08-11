@@ -1,89 +1,128 @@
 #include <memory/mm.h>
 #include <memory/memscan.h>
 #include <algo/sort.h>
-#include <alloc_policy/pool_allocator.h>
 #include <datastruc/forward_list.h>
+#include <memory/pageframe.h>
+#include <datastruc/delay_constructor.h>
 
 extern "C" char IST_END;
-class customAllocator;
 
-static phys_addr_t free_page_start_address(nullptr);
-using free_huge_page_node = util::forward_list_default_node<phys_addr_t>;
+static util::delay_constructor<memory::BuddyAllocator> allocator;
+static unsigned TotalMemoryBlockCount = 0;
 
-class customAllocator : public util::PoolAllocator<free_huge_page_node>
+//return : total memory bytes
+static size_t caculatePageDescriptorSize(memory::e820MmapEntry * begin, memory::e820MmapEntry * end)
 {
-public:
-    using base_type = util::PoolAllocator<free_huge_page_node>;
-    customAllocator();
-    inline free_huge_page_node *allocate()
+    using namespace memory;
+    do
     {
-        return base_type::allocate();
+        end--;
+        if(end->type == e820MmapEntry::RegionType::Free){
+            return (end->base + end->length) - phys_addr_t{nullptr};
+        }
     }
-
-private:
-    void add_memblock(ker_addr_t start, size_t length);
-
-private:
-};
-
-static util::forward_list<phys_addr_t, customAllocator> FreeHugePageList;
-
-customAllocator::customAllocator()
-{
-    phys_addr_t start{ker_addr_t(&IST_END).to_phys()};
-    //Huge page's size = 2MB.
-    const auto aligned = start.align(2_MB);
-    if (aligned - start > 0)
-    {
-        add_memblock(start.to_ker(), aligned - start);
-        start = aligned;
-    }
-    else
-    {
-        add_memblock(start.to_ker(), 2_MB);
-        start += 2_MB;
-    }
-    free_page_start_address = start;
+    while(begin != end);
+    return 0;
 }
-void customAllocator::add_memblock(ker_addr_t start, size_t length)
-{
-    auto count = length / sizeof(free_huge_page_node);
-    auto node_ptr = start.to_ptr_of<free_huge_page_node>();
-    for (size_t i = 0; i < count; i++)
-    {
-        push(addressof(node_ptr[i]));
-    }
+inline static ker_addr_t getPageDescriptorStart(){
+    return ker_addr_t(&IST_END).align(sizeof(memory::PageDescriptor));
 }
-
+static phys_addr_t getFreeMemoryStart(size_t needBytesNum)
+{
+    phys_addr_t start{getPageDescriptorStart().to_phys()};
+    const auto ret = start + (needBytesNum/4_KB)*sizeof(memory::PageDescriptor);
+    return ret;
+}
+#include<debug/debug.h>
+//Todo : replace magic number.
 void memory::init()
 {
     //sorting mm info.
     auto begin = e820_mmap_entry();
     auto end = begin + e820_mmap_entry_count();
-    util::insertion_sort(begin, end, [](const e820MmapEtnry &a, const e820MmapEtnry &b) {
+    util::insertion_sort(begin, end, [](const e820MmapEntry &a, const e820MmapEntry &b) {
         return a.base < b.base;
     });
+    auto cur_pd = getPageDescriptorStart().to_ptr_of<PageDescriptor>();
+    pd_base = cur_pd;
+    allocator.initialize();
+
+    auto need_size = caculatePageDescriptorSize(begin,end);
     //get physical memory
-    phys_addr_t start{free_page_start_address};
-    while (begin != end)
+    //2MB 조사해서 하나 하나 회수하기 귀찮음. 그래서 그냥 align.
+    phys_addr_t start = getFreeMemoryStart(need_size).align(2_MB/*greatest page size... (we do not use 1GB page)*/);
+    auto kernel_size = (start.to_ker() - (phys_addr_t{nullptr}).to_ker());
+    for (size_t i = 0 ;i < kernel_size / 4_KB/*smallest page size*/; i++)
     {
-        if (begin->type == e820MmapEtnry::RegionType::Free && begin->range_in(start, start + 2_MB))
-        {
-            FreeHugePageList.push_front(start);
-            start += 2_MB;
-            continue;
+        if(i % (1 << BuddyAllocator::MaxOrder) == 0){
+            cur_pd->flags(pt_kernel);
+            cur_pd->orders(BuddyAllocator::MaxOrder);
         }
-        begin++;
+        else
+        {
+            cur_pd->flags(pt_tails);
+        }    
     }
+    debug << "kernel space :" << start.address / 1_MB << " MB.\n";
+    TotalMemoryBlockCount += start.address / 2_MB;
+    while(begin != end && !begin->range_in(start,start)) begin++;
+    if(begin == end) panic("corrupt e820 map!");
+    debug << "memory state : ";
+    for (;;)
+    {
+        if (begin->range_in(start, start + 2_MB)){
+            if (begin->type == e820MmapEntry::RegionType::Free)
+            {
+                debug << "F";
+                cur_pd->flags(pt_free);
+                cur_pd->orders(BuddyAllocator::MaxOrder);
+                allocator.value.freelist[BuddyAllocator::MaxOrder].push_back_node((FreeBlock *)cur_pd);
+                allocator.value.count[BuddyAllocator::MaxOrder]++;
+            }
+            else{
+                debug << "R";
+                cur_pd->flags(pt_reserved);
+                cur_pd->orders(BuddyAllocator::MaxOrder);
+            }
+            for (size_t i = 1; i < (1 << BuddyAllocator::MaxOrder); i++)
+            {
+                cur_pd[i].flags(pt_tails);
+            }
+            cur_pd += 1 << BuddyAllocator::MaxOrder; //512.
+            start += 2_MB;
+            TotalMemoryBlockCount++;
+        }
+        else{
+            debug << "R";
+            cur_pd->flags(pt_reserved);
+            cur_pd->orders(BuddyAllocator::MaxOrder);
+            for (size_t i = 1; i < (1 << BuddyAllocator::MaxOrder); i++)
+            {
+                cur_pd[i].flags(pt_tails);
+            }
+            cur_pd += 1 << BuddyAllocator::MaxOrder;
+            start += 2_MB;
+            TotalMemoryBlockCount++;
+            while(!(begin == end || begin->range_in(start,start) )) begin++;
+            if(begin == end) break;
+        }
+    }
+    debug << "\n";
+}
+unsigned memory::getFreeMemoryBlockCount(){
+    return allocator.value.count[BuddyAllocator::MaxOrder];
+}
+unsigned memory::getTotalMemoryBlockCount(){
+    return TotalMemoryBlockCount;
+}
+void memory::printMemoryCount(text::raw_ostream & os){
+    os << "Total Memory : " << TotalMemoryBlockCount*2 << "MB\n"
+    "Current Free Memory : "<< getFreeMemoryBlockCount()*2 << "MB\n";
+    //Todo : hard coding. fix later
 }
 
-phys_addr_t memory::alloc_huge_page()
-{
-    const auto ret = FreeHugePageList.front();
-    FreeHugePageList.pop_front();
-    return ret.value_or(nullptr);
-}
-void memory::free_huge_page(phys_addr_t addr)
-{
-    FreeHugePageList.push_front(addr);
-}
+/*
+static bool kernel_mapped[64] ;
+bool memory::is_mapped_in_kernel(phys_addr_t addr){
+    return kernel_mapped[(addr.align(1_GB).address / 1_GB - 1)];
+}*/

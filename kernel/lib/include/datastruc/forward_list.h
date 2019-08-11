@@ -91,7 +91,7 @@ public:
             destroy_node(n);
     }
     value_type & front() const{
-        return base_type::front_node()->data
+        return base_type::front_node()->data;
     }
     optional<value_type> front_opt() const
     {

@@ -33,7 +33,7 @@ namespace memory
 
         bool range_in(phys_addr_t f,phys_addr_t l){
             return (base <= f )
-                && (l <= (base + length));
+                && (l < (base + length));
         }
     };
     #pragma pack(pop)

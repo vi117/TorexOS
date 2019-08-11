@@ -108,8 +108,9 @@ class list_base
         private:
         node * pos;
     };
+    
     constexpr node * null_node() const noexcept {return node::getNullNode();}
-
+    
     constexpr explicit list_base() noexcept : head(null_node()), tail(null_node()) {}
 
 

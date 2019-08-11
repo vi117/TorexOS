@@ -8,19 +8,19 @@
 template<typename Ty>
 struct commonAllocator
 {
-    Ty * allocate(){return malloc(sizeof(Ty));}
-    void deallocate(Ty * ptr){return free(ptr);}
+    Ty * allocate(){return (Ty *)malloc(sizeof(Ty));}
+    void deallocate(Ty * ptr){free(ptr);}
 };
 
 BOOST_AUTO_TEST_CASE(PassTest1){
-    util::forward_list<int,commonAllocator<int>> list;
+    util::forward_list<int,commonAllocator<util::forward_list_default_node<int> > > list;
     list.push_front(4);
     list.push_front(7);
     list.push_front(9);
-    BOOST_ASSERT(list.front().value() == 9);
+    BOOST_ASSERT(list.front() == 9);
     list.pop_front();
-    BOOST_ASSERT(list.front().value() == 7);
+    BOOST_ASSERT(list.front() == 7);
     list.pop_front();
-    BOOST_ASSERT(list.front().value() == 4);
+    BOOST_ASSERT(list.front() == 4);
     list.pop_front();
 }
