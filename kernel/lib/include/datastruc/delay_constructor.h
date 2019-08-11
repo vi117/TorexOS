@@ -6,14 +6,14 @@ namespace util
     template<typename Ty>
     union delay_constructor
     {
-        char dummy;
         Ty value;
+        char dummy;
         constexpr delay_constructor():dummy(){}
         
         template<typename ... Args>
         void initialize(Args && ... arg)
         {
-            new(addressof(value)) (forward<Args>(arg)...);
+            new(addressof(value)) Ty (forward<Args>(arg)...);
         }
     };
        
