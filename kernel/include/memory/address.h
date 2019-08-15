@@ -24,6 +24,7 @@ struct address_base
     }
     constexpr address_t operator-(diff_t rhs) const { return address_t(address - rhs); }
     constexpr diff_t operator-(address_t rhs) const { return (address - rhs.address); }
+    constexpr diff_t operator-(nullptr_t) const { return address; }
     address_t &operator-=(diff_t rhs)
     {
         address -= rhs;

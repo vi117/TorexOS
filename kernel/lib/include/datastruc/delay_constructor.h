@@ -1,5 +1,6 @@
 #pragma once
 #include<algo/utility.h>
+#include<algo/new.h>
 
 namespace util
 {

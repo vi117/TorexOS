@@ -1,6 +1,6 @@
 #pragma once
 #include<stdint.h>
-#include <datastruc/list.h>
+#include<memory/address.h>
 
 namespace memory
 {
@@ -14,90 +14,65 @@ enum PageType{
     pt_kernel = 1,
     pt_tails = 2,
     pt_reserved = 3,
-};  
+    pt_slab = 4,
+};
 
 typedef uint8_t PageFlag;
 typedef uint8_t order_t;
-
 struct CommonBlockInfo
 {
     PageFlag flag;
     order_t size;
 };
 
-struct FreeBlock : public CommonBlockInfo
+struct FreeBlock
 {
     enum
     {
         null_index = 0xffffffffff
     };
-    uint64_t prev_index : 40;
-    uint64_t next_index : 40;
+    PageFlag flag;
+    order_t size;
+    FreeBlock * prev;
+    FreeBlock * next;
     //page real size = 2^size
     typedef FreeBlock elem;
-    inline FreeBlock *getNext() const;
-    inline FreeBlock *getPrev() const;
-    inline void setNext(FreeBlock *);
-    inline void setPrev(FreeBlock *);
-    static inline FreeBlock *getNullNode();
+    inline FreeBlock *getNext() const {return next;}
+    inline FreeBlock *getPrev() const {return prev;}
+    inline void setNext(FreeBlock * ptr){next = ptr;}
+    inline void setPrev(FreeBlock * ptr){prev = ptr;}
+    constexpr static inline FreeBlock *getNullNode() {return nullptr;}
     inline FreeBlock *getDataPtr() { return (this); }
 };
 
+struct SlubBlock
+{
+    PageFlag flag;
+    order_t size;
+    uint16_t object_size;
+    uint32_t offset;
+    SlubBlock * next;
+};
+
+//always 32 bytes...
 union PageDescriptor{
     CommonBlockInfo common;
     FreeBlock free_block;
-    uint8_t padding[16];
+    SlubBlock slub_head;
+    uint8_t padding[32];
 
     void flags(PageFlag pf){common.flag = pf;}
     PageFlag flags() const { return common.flag;}
     void orders(order_t o){common.size = o;}
     order_t orders() const {return common.size;}
 };
-//static_assert(sizeof(PageDescriptor) == 16);
+static_assert(sizeof(PageDescriptor) == 32);
 #pragma pack(pop)
-inline FreeBlock *FreeBlock::getNext() const{
-    return (FreeBlock *)(next_index + pd_base);
-}
-inline FreeBlock *FreeBlock::getPrev() const { 
-    return (FreeBlock *)(prev_index + pd_base); 
-}
-inline void FreeBlock::setNext(FreeBlock *ptr){
-    next_index = ((PageDescriptor *)ptr) - pd_base;
-}
-inline void FreeBlock::setPrev(FreeBlock *ptr){
-    prev_index = ((PageDescriptor *)ptr) - pd_base;
-}
-inline FreeBlock * FreeBlock::getNullNode(){
-    return (FreeBlock *)(pd_base + null_index);
-}
-
-inline PageDescriptor * buddyof(PageDescriptor * ptr,order_t order){
-    uint64_t index = ptr - pd_base;
-    index ^= 1 << order;
-    return index + pd_base;
-}
-inline PageDescriptor * get_primary(PageDescriptor * a,PageDescriptor * b){
-    uint64_t a_i = a - pd_base;
-    uint64_t b_i = b - pd_base;
-    return (a_i & b_i) + pd_base;
-}
-
-class BuddyAllocator
+inline ker_addr_t to_ker_addr(PageDescriptor * pd)
 {
-public:
-    enum
-    {
-        MaxOrder = 9,
-    };
-    
-    //index require 0~9
-    FreeBlock *allocateWithOrder(order_t order,PageType pt);
-    FreeBlock *splitBlock(FreeBlock *b);
-    void tryMergeAndGet(FreeBlock * b);
-    void deallocateBlock(PageDescriptor *b);
+    return phys_addr_t{(pd - pd_base)*4_KB}.to_ker();
+}
 
-    util::list::list_base<FreeBlock, FreeBlock> freelist[MaxOrder+1];
-    unsigned count[MaxOrder+1] = {0,};
-};
+void mark_pages(PageDescriptor * pos,PageType type,order_t order);
 
 } // namespace memory

@@ -31,7 +31,7 @@ namespace memory
         BadMemory
         };
 
-        bool range_in(phys_addr_t f,phys_addr_t l){
+        bool range_in(phys_addr_t f,phys_addr_t l) const{
             return (base <= f )
                 && (l < (base + length));
         }
