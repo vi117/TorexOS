@@ -24,11 +24,12 @@ void panicInException(int handler_num,const char * message);
 extern errstream debug;
 #else
 #define assert(x) (void(0))
-class Dummy{
+class Dummy : public text::raw_ostream{
 public:
 template<typename Ty>
-Dummy & operator << (Ty){return *this;}
-
+Dummy & operator << (Ty) override {return *this;}
+private:
+virtual void write_impl(const char * str ,size_t sz) override {}
 };
 Dummy debug;
 #endif
