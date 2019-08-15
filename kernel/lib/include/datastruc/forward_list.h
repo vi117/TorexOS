@@ -3,6 +3,7 @@
 #include <algo/base.h>
 #include <algo/utility.h>
 #include <datastruc/optional.h>
+#include <algo/iterator.h>
 
 namespace util
 {
@@ -40,6 +41,11 @@ public:
     class iterator
     {
     public:
+        using value_type = Ty;
+        using pointer = Ty *;
+        using reference = Ty &;
+        using iterator_category = forward_iterator_tag;
+
         constexpr explicit iterator() : pos(nullptr) {}
         constexpr explicit iterator(node_t *node_ptr) : pos(node_ptr) {}
         constexpr iterator(const iterator &rhs) : pos(rhs.pos) {}
