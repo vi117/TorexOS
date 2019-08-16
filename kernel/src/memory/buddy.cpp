@@ -57,8 +57,6 @@ void BuddyAllocator::tryMergeAndGet(FreeBlock *b)
 }
 void BuddyAllocator::deallocateBlock(PageDescriptor *b)
 {
-    if (b == nullptr)
-        return;
     /*if(b->flags()==pt_free){
             double delete? we need more flag.
         }*/

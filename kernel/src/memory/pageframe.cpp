@@ -1,4 +1,5 @@
 #include <memory/pageframe.h>
+#include <memory/slub.h>
 
 namespace memory
 {

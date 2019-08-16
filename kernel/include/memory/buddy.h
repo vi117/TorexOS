@@ -28,6 +28,7 @@ public:
     FreeBlock *allocateWithOrder(order_t order,PageType pt);
     FreeBlock *splitBlock(FreeBlock *b);
     void tryMergeAndGet(FreeBlock * b);
+    //it's not checking that argument is null.
     void deallocateBlock(PageDescriptor *b);
 
     util::list::list_base<FreeBlock, FreeBlock> freelist[MaxOrder+1];

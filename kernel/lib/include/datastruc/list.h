@@ -134,6 +134,9 @@ class list_base
     iterator begin() const noexcept {return iterator{head};}
     iterator end() const noexcept {return iterator{null_node()};}
 
+    elem & front() const noexcept { return *front_iterator();}
+    elem & back() const noexcept { return *back_iterator();}
+
     bool _DebugChecked() const noexcept
     {//these comparison expression order is important.
         return head == null_node() || (
@@ -213,8 +216,8 @@ class list_base
         //if list is empty, return value is still true;
         return (tail == head);
         //if list not empty, equal
-        //or return head->list_next == nullptr
-        //or return tail->list_prev == nullptr
+        //or return head->list_next == null_node()
+        //or return tail->list_prev == null_node()
     }
     static void join_list(node * backpos, node *  afterpos) noexcept
     {

@@ -1,6 +1,7 @@
 #include <memory/mm.h>
 #include <memory/memscan.h>
 #include <memory/buddy.h>
+#include <memory/slub.h>
 
 #include <algo/sort.h>
 
@@ -8,12 +9,14 @@
 #include <math/ilog2.h>
 #include <debug/debug.h>
 
-//Todo : replace magic number.
+//Todo : replace magic number. 2_MB.
 
 extern "C" char IST_END;
 
-static util::delay_constructor<memory::BuddyAllocator> allocator;
+static memory::BuddyAllocator allocator;
 static unsigned TotalMemoryBlockCount = 0;
+//32, 64, 128, 256, 512, 1024, 2048.
+static memory::slub_allocator slubs[7];
 
 //return : total memory bytes
 static size_t calculatePageDescriptorSize()
@@ -38,7 +41,7 @@ inline static ker_addr_t getPageDescriptorStart()
 static phys_addr_t getFreeMemoryStart(size_t needBytesNum)
 {
     phys_addr_t start{getPageDescriptorStart().to_phys()};
-    const auto ret = start + (needBytesNum / 4_KB) * sizeof(memory::PageDescriptor);
+    const auto ret = start + (needBytesNum / memory::smallest_page_size) * sizeof(memory::PageDescriptor);
     return ret;
 }
 // return value : pointer of end of kernel area
@@ -64,7 +67,8 @@ static void makeBuddy(phys_addr_t start){
     
     const e820MmapEntry * begin = e820_mmap_entry();
     const e820MmapEntry * end = begin + e820_mmap_entry_count();
-    allocator.initialize();
+    auto cur_pd = pd_base + ((start - nullptr) / smallest_page_size);
+    //allocator.initialize();
     
     while (begin != end && !begin->range_in(start, start))
         begin++;
@@ -79,8 +83,8 @@ static void makeBuddy(phys_addr_t start){
             {
                 debug << "F";
                 mark_pages(cur_pd, pt_free, BuddyAllocator::MaxOrder);
-                allocator.value.freelist[BuddyAllocator::MaxOrder].push_back_node((FreeBlock *)cur_pd);
-                allocator.value.count[BuddyAllocator::MaxOrder]++;
+                allocator.freelist[BuddyAllocator::MaxOrder].push_back_node((FreeBlock *)cur_pd);
+                allocator.count[BuddyAllocator::MaxOrder]++;
             }
             else
             {
@@ -108,7 +112,11 @@ static void makeBuddy(phys_addr_t start){
 }
 static void makePool()
 {
-
+    const int sizes[] = {32, 64, 128, 256, 512, 1024, 2048};
+    for (size_t i = 0; i < 7; i++)
+    {
+        slubs[i].object_size = sizes[i];
+    }
 }
 void memory::init()
 {
@@ -130,7 +138,7 @@ void memory::init()
 }
 unsigned memory::getFreeMemoryBlockCount()
 {
-    return allocator.value.count[BuddyAllocator::MaxOrder];
+    return allocator.count[BuddyAllocator::MaxOrder];
 }
 unsigned memory::getTotalMemoryBlockCount()
 {
@@ -144,19 +152,52 @@ void memory::printMemoryCount(text::raw_ostream &os)
     //Todo : hard coding. fix later
 }
 
+memory::PageDescriptor * memory::alloc_pages(PageType pt,order_t order)
+{
+    return (PageDescriptor *)allocator.allocateWithOrder(order,pt);
+}
+void memory::free_pages(PageDescriptor * pd)
+{
+    if(pd == nullptr) return; 
+    allocator.deallocateBlock(pd);
+}
+
 /*
 static bool kernel_mapped[64] ;
 bool memory::is_mapped_in_kernel(phys_addr_t addr){
     return kernel_mapped[(addr.align(1_GB).address / 1_GB - 1)];
 }*/
 
-/*void * memory::kmalloc(size_t size){
-    if (size == 0) //get error!
-    ;
+void * memory::kmalloc(size_t size){
+    if (size == 0) panic("alloc with 0 size");
+    if (size > 2_MB) panic("Too big to alloc");
     if(size > 2048){
-        //alloc pages...
+        return alloc_pages(pt_kernel,calculOrder(size));
     }
     if(size < 32) size = 32;
     auto index = util::math::ilog2(size) - util::math::ilog2(32);
-    //return slub_allocators[index].allocate();
-}*/
+    debug << "alloc index : " <<index << "\n";
+    return slubs[index].alloc();
+}
+void memory::kfree(void * ptr){
+    size_t index = (ker_addr_t{ptr}.to_phys().address >> util::math::ilog2(smallest_page_size));
+    debug << "free index : " <<index << "\n";
+    while(pd_base[index].flags() == pt_tails){
+        //turn off right bit set.
+        index = (index & (index - 1));
+    }
+    auto pd = &pd_base[index];
+        switch (pd->flags())
+        {
+    case pt_kernel:
+        free_pages(pd);
+        break;
+    case pt_slab:
+        pd->slub_head.owner->free(&pd->slub_head,ptr);
+        break;
+    default:
+        panic("invalid pointer");
+        break;
+    }
+    
+}

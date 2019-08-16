@@ -16,7 +16,12 @@ int main()
     out << "start memory collecting...\n";
     memory::init();
     memory::printMemoryCount(out);
-    for(;;);
+    {
+        uint64_t * a = (uint64_t *)memory::kmalloc(sizeof(uint64_t));
+        *a = 4;
+        memory::kfree(a);
+    }
+    //for(;;);
     while(1){
         /* do nothing. */
     }

@@ -11,8 +11,8 @@ namespace memory
     unsigned getTotalMemoryBlockCount();
     void printMemoryCount(text::raw_ostream & os);
     
-    //PageDescriptor * alloc_pages(PageType pt,order_t order);
-    //void free_pages(PageDescriptor * pd);
+    PageDescriptor * alloc_pages(PageType pt,order_t order);
+    void free_pages(PageDescriptor * pd);
     
     bool is_mapped_in_kernel(phys_addr_t);
     /*Mapping 1GB*/
@@ -20,6 +20,6 @@ namespace memory
 
     void allocator_init();
     
-    //void * kmalloc(size_t);
-    //void kfree(void *);
+    void * kmalloc(size_t);
+    void kfree(void *);
 } // memory
