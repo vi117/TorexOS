@@ -37,6 +37,7 @@ unset(TEMP)
 
 set(CXX_SRC_FILE  
 "debug/debug.cpp"
+"debug/logger.cpp"
 "memory/memscan.cpp" 
 "memory/mm.cpp"
 "memory/slub.cpp"
