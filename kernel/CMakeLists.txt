@@ -18,7 +18,7 @@ set ( CMAKE_BUILD_TYPE <Debug|Release> )
 
 set(CMAKE_VERBOSE_MAKEFILE true )
 set(CMAKE_CXX_COMPILER g++)
-set(CMAKE_CXX_FLAGS "-ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -fno-stack-protector -fconcepts -g")
+set(CMAKE_CXX_FLAGS "-ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -fno-stack-protector -g")
 set(CMAKE_ASM_NASM_OBJECT_FORMAT "elf64")
 set(CMAKE_ASM_NASM_FLAGS "-g")
 set(CMAKE_EXE_LINKER_FLAGS "-nostdlib -T kernel.ld -Xlinker -Map=output.map")
@@ -39,7 +39,8 @@ set(CXX_SRC_FILE
 "debug/debug.cpp"
 "memory/memscan.cpp" 
 "memory/mm.cpp"
-#"memory/slab.cpp"
+"memory/slub.cpp"
+"memory/buddy.cpp"
 "memory/pageframe.cpp"
 "vga/cursor.cpp" 
 "vga/vgaout.cpp"

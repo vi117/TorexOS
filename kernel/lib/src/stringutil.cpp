@@ -211,6 +211,19 @@ void * text::memcpy(void *dest, const void *src, size_t n)
 	return dest;
 }
 
+int text::memcmp(const void * ptr1,const void * ptr2,size_t length)
+{
+	const uint8_t *p1 = static_cast<const uint8_t *>(ptr1);
+	const uint8_t *p2 = static_cast<const uint8_t *>(ptr2);
+	for (size_t i = 0; i < length; i++, p1++, p2++)
+	{
+		if(*p1 != *p2)
+			return (int)*p1 - (int)*p2;
+	}
+	return 0;
+ }
+
+
 #define ALIGN (sizeof(size_t))
 #define ONES ((size_t)-1/UCHAR_MAX)
 #define HIGHS (ONES * (UCHAR_MAX/2+1))
