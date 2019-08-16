@@ -8,6 +8,7 @@
 #include <datastruc/delay_constructor.h>
 #include <math/ilog2.h>
 #include <debug/debug.h>
+#include <debug/logger.h>
 
 //Todo : replace magic number. 2_MB.
 
@@ -58,7 +59,7 @@ static phys_addr_t mark_kernel_area()
         mark_pages(&pd_start[i], pt_kernel, BuddyAllocator::MaxOrder /*ilog2(2_MB/4_KB)*/);
     
     TotalMemoryBlockCount += kernel_size / 2_MB;
-    debug << "kernel space : " << kernel_size / 1_MB << " MB.\n";
+    logger << "Kernel Space : " << kernel_size / 1_MB << " MB\n";
     return start;
 }
 
@@ -74,21 +75,18 @@ static void makeBuddy(phys_addr_t start){
         begin++;
     if (begin == end)
         panic("corrupt e820 map!");
-    debug << "memory state : ";
     for (;;)
     {
         if (begin->range_in(start, start + 2_MB))
         {
             if (begin->type == e820MmapEntry::RegionType::Free)
             {
-                debug << "F";
                 mark_pages(cur_pd, pt_free, BuddyAllocator::MaxOrder);
                 allocator.freelist[BuddyAllocator::MaxOrder].push_back_node((FreeBlock *)cur_pd);
                 allocator.count[BuddyAllocator::MaxOrder]++;
             }
             else
             {
-                debug << "R";
                 mark_pages(cur_pd, pt_reserved, BuddyAllocator::MaxOrder);
             }
             cur_pd += 1 << BuddyAllocator::MaxOrder; //512.
@@ -97,7 +95,6 @@ static void makeBuddy(phys_addr_t start){
         }
         else
         {
-            debug << "R";
             mark_pages(cur_pd, pt_reserved, BuddyAllocator::MaxOrder);
             cur_pd += 1 << BuddyAllocator::MaxOrder;
             start += 2_MB;
@@ -108,7 +105,6 @@ static void makeBuddy(phys_addr_t start){
                 break;
         }
     }
-    debug << "\n";
 }
 static void makePool()
 {
@@ -176,12 +172,11 @@ void * memory::kmalloc(size_t size){
     }
     if(size < 32) size = 32;
     auto index = util::math::ilog2(size) - util::math::ilog2(32);
-    debug << "alloc index : " <<index << "\n";
+    
     return slubs[index].alloc();
 }
 void memory::kfree(void * ptr){
     size_t index = (ker_addr_t{ptr}.to_phys().address >> util::math::ilog2(smallest_page_size));
-    debug << "free index : " <<index << "\n";
     while(pd_base[index].flags() == pt_tails){
         //turn off right bit set.
         index = (index & (index - 1));

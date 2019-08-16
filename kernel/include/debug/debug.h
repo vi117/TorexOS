@@ -13,7 +13,12 @@ private:
     virtual void write_impl(const char *, size_t) override;
 };
 
-void panic(const char * message);
+void panic_impl(const char * message,
+                    const char * file,
+                    const char * function,
+                    unsigned long line);
+#define panic(x) panic_impl(x,__FILE__,__FUNCTION__,__LINE__)
+
 void assert_impl( const char * message,
                     const char * file,
                     const char * function,

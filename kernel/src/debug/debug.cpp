@@ -9,9 +9,15 @@ void errstream::write_impl(const char * str,size_t n){
 static errstream err;
 errstream debug;
 
-void panic(const char * message){
+void panic_impl(const char * message,
+                    const char * file,
+                    const char * function,
+                    unsigned long line){
     clearinterruptflag();
-    err << message;
+    err << message
+        << "\nfile :" <<file
+        << "\nfunc :" <<function
+        << "\nline :" <<line;
     err << "\ncaller address : " << __GET_CALLER(0);
     for(;;);
 }
