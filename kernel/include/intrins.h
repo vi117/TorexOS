@@ -62,4 +62,11 @@ static force_inline void nop(){
 static force_inline void mfence(){
     __asm__ __volatile__("mfence": : :"memory");
 }
+static force_inline uint64_t get_rflags(){
+    uint64_t flags;
+    asm volatile ( "pushf\n\t"
+                   "pop %0"
+                   : "=g"(flags) );
+    return flags;
+}
 #endif

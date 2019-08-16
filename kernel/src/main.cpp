@@ -4,6 +4,10 @@
 #include <arch/mminit.h>
 #include <memory/mm.h>
 
+#include <drivers/ps2/keyboard.h>
+#include <keyboard/scancode.hpp>
+#include <intrins.h>
+
 [[noreturn]]
 int main()
 {
@@ -16,13 +20,18 @@ int main()
     out << "start memory collecting...\n";
     memory::init();
     memory::printMemoryCount(out);
-    {
-        uint64_t * a = (uint64_t *)memory::kmalloc(sizeof(uint64_t));
-        *a = 4;
-        memory::kfree(a);
-    }
+    ps2::state state;
+    state.activate();
+    
     //for(;;);
+    clearinterruptflag();
+    
     while(1){
+        if(state.isAviliable()){
+        auto sc = state.getScanCode();
+        if(!sc.code.up)
+            out << key::KeyMappingTable[sc.code.name].NormalCode;
+        }
         /* do nothing. */
     }
 }

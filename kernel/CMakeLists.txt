@@ -45,7 +45,10 @@ set(CXX_SRC_FILE
 "memory/pageframe.cpp"
 "vga/cursor.cpp" 
 "vga/vgaout.cpp"
-"arch/mminit.cpp")
+"arch/mminit.cpp"
+"keyboard/scancode.cpp"
+"drivers/ps2/keyboard.cpp"
+"drivers/ps2/ps2.cpp")
 
 set(CXX_SRC_FILE ${CXX_SRC_FILE} "main.cpp")
 

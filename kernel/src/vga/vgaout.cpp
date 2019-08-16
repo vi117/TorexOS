@@ -94,7 +94,7 @@ void text::vga_linefeed(){
 
 void text::vga_backspace(){
     cursor = cursor.get() - 1;
-	*(uint8_t *)screen-- = 0;
+	*(uint8_t *)(--screen) = 0;
 }
 
 void text::vga_tap(){
