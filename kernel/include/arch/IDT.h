@@ -2,7 +2,7 @@
 
 #ifndef _IDT_H_
 #define _IDT_H_
-namespace
+namespace x86_64
 {
  typedef void(*IDT_Handler)(void);
 #pragma pack(push,1)

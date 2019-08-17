@@ -35,7 +35,7 @@ void x86_64::gdt_and_tss_init(util::LinearAllocator & allocator){
     loadtr(sizeof(GDT::Entry8)*3);
 }
 
-extern IDT_Handler interrupt_handler_vector[128];
+extern x86_64::IDT_Handler interrupt_handler_vector[128];
 
 void x86_64::idt_init(util::LinearAllocator & allocator){
     constexpr auto idt_count = 128;

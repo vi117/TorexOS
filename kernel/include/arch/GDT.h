@@ -1,6 +1,9 @@
 #include <stdint.h>
 #ifndef _GDT_H_
 #define _GDT_H_
+namespace x86_64
+{
+    
 
 namespace GDT
 {
@@ -154,4 +157,5 @@ struct Entry16 : public Entry8
 #pragma pack(pop)
 
 } // namespace GDT
+} // namespace x86_64
 #endif
