@@ -41,11 +41,12 @@ meta info check 도 나중에함.
 #endif
 */
 }
-void memory::make_slabs(SlubBlock * block)
+void memory::SlubAllocator::make_slabs(SlubBlock * block)
 {
     const auto base = to_ker_addr((PageDescriptor *)block).to_ptr_of<uint8_t>();
     const auto limit = ((size_t)smallest_page_size << block->size);
-    const auto object_size = block->owner->object_size;
+    block->owner = this;
+    //debug << base << ":" << limit << "(" << object_size<<")";
     size_t index = 0;
     while(index < limit){
         *((slubcell_t *)(base+index))= index + object_size;
@@ -55,7 +56,7 @@ void memory::make_slabs(SlubBlock * block)
     *((slubcell_t *)(base+index))= cell_null;
 }
 
-void * memory::slub_allocator::alloc(){
+void * memory::SlubAllocator::alloc(){
     if(!partial.empty()){
         auto& front = partial.front();
         if (front.free_offset != cell_null)
@@ -66,27 +67,30 @@ void * memory::slub_allocator::alloc(){
             front.in_use = in_use_max;
             return alloc();
         }
-    }
-    using namespace util::math;
-    
+    }    
     //128 objects per 1 slab seems to be enough.
     const auto allocate_order = calculOrder(object_size*128);
+    //debug << (size_t)allocate_order << "\n";
 
     auto pages = memory::alloc_pages(pt_slab,allocate_order);
+    if(pages == nullptr) return nullptr;
     make_slabs((SlubBlock *)pages);
     partial.push_front_node((SlubBlock *)pages);
     return alloc();
 }
-void memory::slub_allocator::free(SlubBlock * block,void * ptr){
-    free_in_oneblock(block,ptr);
-    if(block->in_use == 0)
+void memory::SlubAllocator::free(SlubBlock * block,void * ptr){
+    if(block->free_offset == cell_null)
     {
-        partial.pop_node(block);
-        free_pages((PageDescriptor *)block);
-    }
-    else if(block->in_use == in_use_max)
-    {
+        free_in_oneblock(block,ptr);
         full.pop_node(block);
         partial.push_back_node(block);
+    }
+    else{
+        free_in_oneblock(block,ptr); 
+        if(block->in_use == 0)
+        {
+            partial.pop_node(block);
+            free_pages((PageDescriptor *)block);
+        }
     }
 }

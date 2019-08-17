@@ -69,4 +69,17 @@ static force_inline uint64_t get_rflags(){
                    : "=g"(flags) );
     return flags;
 }
+static force_inline void write_cr3(phys_addr_t addr){
+    asm volatile(" mov %0, %%cr3" ::"r" (addr.address) : "memory");
+}
+static force_inline uintptr_t read_cr3()
+{
+    uintptr_t val;
+    asm volatile ( "mov %%cr3, %0" : "=r"(val) );
+    return val;
+}
+static inline void flush_tlb_single(uintptr_t addr)
+{
+   asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
+}
 #endif

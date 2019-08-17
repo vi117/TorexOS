@@ -16,6 +16,7 @@ enum PageType{
     pt_tails = 2,
     pt_reserved = 3,
     pt_slab = 4,
+    pt_kernel_map = 5,
 };
 
 typedef uint8_t PageFlag;
@@ -48,7 +49,7 @@ struct FreeBlock
 
 typedef uint32_t slubcell_t;
 constexpr uint16_t in_use_max = 0xffff;
-class slub_allocator;
+class SlubAllocator;
 struct SlubBlock
 {
     PageFlag flag;
@@ -58,7 +59,7 @@ struct SlubBlock
 
     SlubBlock * next_block;
     SlubBlock * prev_block;
-    slub_allocator * owner;
+    SlubAllocator * owner;
 
     inline SlubBlock *getNext() const {return next_block;}
     inline SlubBlock *getPrev() const {return prev_block;}
@@ -91,7 +92,7 @@ static_assert(sizeof(PageDescriptor) == 32);
 #pragma pack(pop)
 inline ker_addr_t to_ker_addr(PageDescriptor * pd)
 {
-    return phys_addr_t{(pd - pd_base)*4_KB}.to_ker();
+    return phys_addr_t{(pd - pd_base)*smallest_page_size}.to_ker();
 }
 
 void mark_pages(PageDescriptor * pos,PageType type,order_t order);

@@ -8,6 +8,7 @@
 #include <keyboard/scancode.hpp>
 #include <intrins.h>
 
+
 [[noreturn]]
 int main()
 {
@@ -16,16 +17,19 @@ int main()
     out << "Initialize GDT, TSS and IDT.\n";
     x86_64::init_all();
     _init();
-    //memory::printMemoryMap(out);
     out << "start memory collecting...\n";
     memory::init();
+    memory::printMemoryMap(out);
     memory::printMemoryCount(out);
     ps2::state state;
     state.activate();
     
-    //for(;;);
+    void * s = memory::kmalloc(32);
+    memory::kfree(s);
+    void * t = memory::kmalloc(32);
+    out << s << " and " << t << "\n";
+
     clearinterruptflag();
-    
     while(1){
         if(state.isAviliable()){
         auto sc = state.getScanCode();

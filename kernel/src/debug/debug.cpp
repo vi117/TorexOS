@@ -8,6 +8,22 @@ void errstream::write_impl(const char * str,size_t n){
 
 static errstream err;
 errstream debug;
+/*
+struct stackframe {
+  struct stackframe* ebp;
+  void * eip;
+};
+void StackTrace(void * ebp ,unsigned int MaxFrames)
+{
+    stackframe *stk = (stackframe *)ebp;
+    err << "Stack trace:\n";
+    for(size_t frame = 0; stk != nullptr && frame < MaxFrames; ++frame)
+    {
+        // Unwind to previous stack frame
+        err << stk->eip << "\n";
+        stk = stk->ebp;
+    }
+}*/
 
 void panic_impl(const char * message,
                     const char * file,

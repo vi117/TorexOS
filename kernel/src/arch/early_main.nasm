@@ -10,7 +10,7 @@ early_main:
     nop
     extern STACK_END
     mov rsp, STACK_END
-    mov rbp, rsp
+    xor rbp, rbp
     extern main
-    jmp main
+    call main
 

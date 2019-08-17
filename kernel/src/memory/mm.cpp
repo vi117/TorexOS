@@ -3,12 +3,15 @@
 #include <memory/buddy.h>
 #include <memory/slub.h>
 
+#include <datastruc/bitset.h>
+
 #include <algo/sort.h>
 
-#include <datastruc/delay_constructor.h>
 #include <math/ilog2.h>
 #include <debug/debug.h>
 #include <debug/logger.h>
+
+#include <arch/pagetable.h>
 
 //Todo : replace magic number. 2_MB.
 
@@ -17,7 +20,7 @@ extern "C" char IST_END;
 static memory::BuddyAllocator allocator;
 static unsigned TotalMemoryBlockCount = 0;
 //32, 64, 128, 256, 512, 1024, 2048.
-static memory::slub_allocator slubs[7];
+static memory::SlubAllocator slubs[7];
 
 //return : total memory bytes
 static size_t calculatePageDescriptorSize()
@@ -114,6 +117,59 @@ static void makePool()
         slubs[i].object_size = sizes[i];
     }
 }
+static size_t size_of_mapping(){
+    const mm::e820MmapEntry * begin = mm::e820_mmap_entry();
+    const mm::e820MmapEntry * end = begin + mm::e820_mmap_entry_count();
+    end--;
+    auto sz = end->base + end->length;
+    return sz.address - 1;
+}
+static void makeKernelPTE()
+{
+    phys_addr_t end_position{size_of_mapping()};
+    const auto pte_count = (end_position.address / 2_MB) / 512 + 1;
+    const auto pud_count = (pte_count - 1) / 512 + 1;
+    const auto pgd_count = (pud_count - 1) / 512 + 1;
+    if(pte_count>512){panic("we not support memory above 512GB.");}
+    //if(pgd_count>1){panic("memory is too big to handle!!!");}
+    auto pte_base = mm::alloc_pages_kma(mm::pt_kernel_map,pte_count*4_KB);
+    auto pud_base = mm::alloc_pages_kma(mm::pt_kernel_map,pud_count*4_KB);
+    auto pgd_base = mm::alloc_pages_kma(mm::pt_kernel_map,pgd_count*4_KB);
+
+    auto pte = pte_base.to_ptr_of<x86_64::PageDirectoryEntry2MB>();
+    auto pud = pud_base.to_ptr_of<x86_64::PageDirectoryPointerEntry>();
+    auto pgd = pgd_base.to_ptr_of<x86_64::PageMapLevel4>();
+    /*debug << (void *)pte <<" : " << pte_count <<"\n";
+    debug << (void *)pud <<" : " << pud_count <<"\n";
+    debug << (void *)pgd <<" : " << pgd_count <<"\n";*/
+
+    for (auto addr = phys_addr_t{nullptr};
+    addr < end_position; addr += 2_MB, pte++)
+    {
+        pte->pointTo(addr.address);
+        pte->Present = true;
+        pte->RW = true;
+        pte->PS = true;
+    }
+    for ( size_t i = 0;i < pte_count;i++)
+    {
+        pud[i].pointTo(pte_base.address + i*4_KB);
+        pud[i].Present = true;
+        pud[i].RW = true;
+    }
+    /*In fact, currently we don't have to use 'for' statement,
+     because currently pud_count equal to 1.
+     But we use loop statement to prepare for the future.
+     */
+    for ( size_t i = 0;i < pud_count;i++)
+    {
+        pgd[i+256].pointTo(pud_base.address + i*4_KB);
+        pgd[i+256].Present = true;
+        pgd[i+256].RW = true;
+    }
+    //debug << (void *)(ker_addr_t{pgd}.to_phys().address) << "\n";
+    x86_64::load_PML4(pgd);
+}
 void memory::init()
 {
     //sorting mm info.
@@ -129,7 +185,7 @@ void memory::init()
     auto start = mark_kernel_area();
     
     makeBuddy(start);
-    //makeKernelPTE();
+    makeKernelPTE();
     makePool();
 }
 unsigned memory::getFreeMemoryBlockCount()
@@ -154,25 +210,21 @@ memory::PageDescriptor * memory::alloc_pages(PageType pt,order_t order)
 }
 void memory::free_pages(PageDescriptor * pd)
 {
-    if(pd == nullptr) return; 
+    if(pd == nullptr) return;
     allocator.deallocateBlock(pd);
 }
-
-/*
-static bool kernel_mapped[64] ;
-bool memory::is_mapped_in_kernel(phys_addr_t addr){
-    return kernel_mapped[(addr.align(1_GB).address / 1_GB - 1)];
-}*/
-
+ker_addr_t memory::alloc_pages_kma(PageType pt, size_t sz)
+{
+    return to_ker_addr(alloc_pages(pt,calculOrder(sz)));
+}
 void * memory::kmalloc(size_t size){
     if (size == 0) panic("alloc with 0 size");
     if (size > 2_MB) panic("Too big to alloc");
     if(size > 2048){
         return alloc_pages(pt_kernel,calculOrder(size));
     }
-    if(size < 32) size = 32;
+    size = util::max((size_t)32, size);
     auto index = util::math::ilog2(size) - util::math::ilog2(32);
-    
     return slubs[index].alloc();
 }
 void memory::kfree(void * ptr){

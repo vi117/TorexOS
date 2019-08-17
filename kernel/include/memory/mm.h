@@ -13,13 +13,13 @@ namespace memory
     
     PageDescriptor * alloc_pages(PageType pt,order_t order);
     void free_pages(PageDescriptor * pd);
-    
-    bool is_mapped_in_kernel(phys_addr_t);
-    /*Mapping 1GB*/
-    void mmap_kernel(phys_addr_t);
+
+    ker_addr_t alloc_pages_kma(PageType pt, size_t sz);
 
     void allocator_init();
     
     void * kmalloc(size_t);
     void kfree(void *);
 } // memory
+
+namespace mm = memory;
