@@ -4,7 +4,7 @@
 
 namespace util
 {
-    struct bitmap_view{
+    struct bitset_view{
         uint64_t * data;
         size_t index;
         inline bool operator=(bool value){
@@ -20,6 +20,21 @@ namespace util
             return data[index >> 6] & (1<<(index & 0x3f));
         }
     };
+    template<size_t N>
+    struct bitset
+    {
+        static constexpr size_t size = (N - 1) / 64 + 1;
+        uint64_t data[size];
+        constexpr bool operator[](size_t index) const
+        {
+            return data[index >> 6] & (1<<(index & 0x3f));
+        }
+        bitset_view operator[](size_t index)
+        {
+            return bitset_view{data,index};
+        }
+    };
+    
     size_t find_first_set(uint8_t * data, size_t size)
     {
         size_t i = 0;
