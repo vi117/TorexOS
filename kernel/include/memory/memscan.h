@@ -9,8 +9,28 @@
 
 namespace memory
 {
-    /*arch*/
+/*
+• The platform boot firmware returns address ranges describing baseboard memory.
+• The platform boot firmware does not return a range description for the memory mapping of
+PCI devices, ISA Option ROMs, and ISA Plug and Play cards because the OS has mechanisms
+available to detect them.
+• The platform boot firmware returns chip set-defined address holes that are not being used by
+devices as reserved.
+• Address ranges defined for baseboard memory-mapped I/O devices, such as APICs, are
+returned as reserved.
+• All occurrences of the system platform boot firmware are mapped as reserved, including the
+areas below 1 MB, at 16 MB (if present), and at end of the 4-GB address space.
+• Standard PC address ranges are not reported. For example, video memory at A0000 to BFFFF
+physical addresses are not described by this function. The range from E0000 to EFFFF is specific
+to the baseboard and is reported as it applies to that baseboard.
+• All of lower memory is reported as normal memory. The OS must handle standard RAM
+locations that are reserved for specific uses, such as the interrupt vector table (0:0) and the
+platform boot firmware data area (40:0).
+*/
+
     #pragma pack(push, 1)
+    /* system address map entry.
+    *you can read system address map in ACPI specification*/
     struct e820MmapEntry
     {
         enum class RegionType : uint32_t;
@@ -28,7 +48,10 @@ namespace memory
         * tables that are stored there (i.e. it can be "reclaimed"). */
         ACPI_reclaimable,
         ACPI_NVS,
-        BadMemory
+        Unusable,
+        Disabled,
+        PersistentMemory,
+        //others are undefined or OEM defined.
         };
 
         bool range_in(phys_addr_t f,phys_addr_t l) const{
