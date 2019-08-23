@@ -49,12 +49,12 @@ namespace util
 			first = 0;
 			last = 0;
 			isfull = false;
-			memset(data,0,size*sizeof(elementType));
+			text::memset(data,0,size*sizeof(elementType));
 		}
 
 	private:
-		size_t first;
-		size_t last;
+		uint32_t first;
+		uint32_t last;
 		bool isfull;
 		uint8_t padding[3];
 		elementType data[size];
