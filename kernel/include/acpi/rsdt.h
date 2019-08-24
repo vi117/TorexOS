@@ -45,5 +45,6 @@ namespace acpi
 
 	bool doCheckSum(SDTHeader *);
 
+	SDTHeader * find(const char * name);
 	void printSDTs(text::raw_ostream & os);
 }
