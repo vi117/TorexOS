@@ -106,20 +106,18 @@ void * text::memcpy(void *dest, const void *src, size_t n)
 #endif
 
 	typedef uint32_t __attribute__((__may_alias__)) u32;
+	typedef uint64_t __attribute__((__may_alias__)) u64;
 	uint32_t w, x;
 
 	for (; (uintptr_t)s % 4 && n; n--) *d++ = *s++;
 
 	if ((uintptr_t)d % 4 == 0) {
 		for (; n>=16; s+=16, d+=16, n-=16) {
-			*(u32 *)(d+0) = *(u32 *)(s+0);
-			*(u32 *)(d+4) = *(u32 *)(s+4);
-			*(u32 *)(d+8) = *(u32 *)(s+8);
-			*(u32 *)(d+12) = *(u32 *)(s+12);
+			*(u64 *)(d+0) = *(u64 *)(s+0);
+			*(u64 *)(d+8) = *(u64 *)(s+8);
 		}
 		if (n&8) {
-			*(u32 *)(d+0) = *(u32 *)(s+0);
-			*(u32 *)(d+4) = *(u32 *)(s+4);
+			*(u64 *)(d+0) = *(u64 *)(s+0);
 			d += 8; s += 8;
 		}
 		if (n&4) {
