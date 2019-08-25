@@ -22,7 +22,14 @@ static force_inline uint8_t inbyte(uint16_t port)
                    : "Nd"(port) );
     return ret;
 }
-static force_inline void loadgdtr(phys_addr_t base,uint16_t limit)
+static inline void io_wait(void)
+{
+    /* Port 0x80 is used for 'checkpoints' during POST. */
+    /* The Linux kernel seems to think it is free for use :-/ */
+    asm volatile ( "outb %%al, $0x80" : : "a"(0) );
+    /* %%al instead of %0 makes no difference.  TODO: does the register need to be zeroed? */
+}
+static force_inline void loadgdtr(ker_addr_t base,uint16_t limit)
 {
 #pragma pack(push,1)
     struct{
@@ -37,7 +44,7 @@ static force_inline void loadtr(uint16_t offset)
 {
     asm volatile ( "ltr %0" : : "r"(offset) );
 }
-static force_inline void loadidtr(phys_addr_t base,uint16_t limit)
+static force_inline void loadidtr(ker_addr_t base,uint16_t limit)
 {
 #pragma pack(push,1)
     struct{
@@ -64,7 +71,7 @@ static force_inline void mfence(){
 }
 static force_inline uint64_t get_rflags(){
     uint64_t flags;
-    asm volatile ( "pushf\n\t"
+    asm volatile ( "pushf \n\t"
                    "pop %0"
                    : "=g"(flags) );
     return flags;
