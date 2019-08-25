@@ -19,8 +19,8 @@ public:
     
     void make_slabs(SlubBlock *);
 
-    util::list::list_base<SlubBlock,SlubBlock> partial;
-    util::list::list_base<SlubBlock,SlubBlock> full;
+    util::list_base<SlubBlock,SlubBlock> partial;
+    util::list_base<SlubBlock,SlubBlock> full;
     uint16_t object_size;
 };
 

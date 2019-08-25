@@ -31,7 +31,7 @@ public:
     //it's not checking that argument is null.
     void deallocateBlock(PageDescriptor *b);
 
-    util::list::list_base<FreeBlock, FreeBlock> freelist[MaxOrder+1];
+    util::list_base<FreeBlock, FreeBlock> freelist[MaxOrder+1];
     unsigned count[MaxOrder+1] = {0,};
 };  
 } // namespace memory

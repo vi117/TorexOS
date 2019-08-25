@@ -2,10 +2,11 @@
 #include<algo/type_trait.h>
 #include<algo/utility.h>
 #include<algo/iterator.h>
+#include<algo/new.h>
 
 namespace util
 {
-namespace list
+namespace list_detail
 {
 namespace detail
 {
@@ -53,7 +54,7 @@ struct list_default_node
     inline void setNext(pointer ptr) noexcept {list_next = ptr;}
     inline void setPrev(pointer ptr) noexcept {list_prev = ptr;}
     static inline pointer getNullNode() noexcept {return nullptr;}
-    elem * getDataPtr() const {return addressof(data);}
+    elem * getDataPtr() {return addressof(data);}
 
     pointer list_next;
     pointer list_prev;
@@ -80,11 +81,12 @@ struct list_default_node<void>
 template <typename Ty, typename node = list_default_node<Ty>>
 class list_base
 {
-  public:
-  static_assert(detail::HasListTrait<node>::value,"no complete list trait");
-  //static_assert(issame(),"elem");
-  using elem = Ty;
-
+public:
+    static_assert(detail::HasListTrait<node>::value,"no complete list trait");
+    //static_assert(issame(),"elem");
+    using elem = Ty;
+    using node_type = node;
+    using value_type = elem;
     class iterator
     {
       public:
@@ -228,6 +230,65 @@ class list_base
     node * head;
     node * tail;
 };
+template<typename Ty,typename Allocator>
+class list : public list_base<Ty>
+{
+public:
+    using base = list_base<Ty>;
+    using typename base::base;
+    using typename base::empty;
+    using typename base::begin;
+    using typename base::end;
+    using typename base::iterator;
+    using typename base::front;
+    using typename base::back;
+    using typename base::node_type;
+    using typename base::value_type;
 
-} // namespace list
+    bool push_front(const value_type &element) noexcept
+    {
+        auto new_node = create_node(element);
+        //allocation fail
+        if (new_node == nullptr)
+            return false;
+
+        base::push_front_node(new_node);
+        return true;
+    }
+    void pop_front()
+    {
+        auto n = base::pop_front_node();
+        if (n != nullptr)
+            destroy_node(n);
+    }
+    void erase(iterator it)
+    {
+        base::pop_node(it);
+    }
+private:
+    template <typename... Args>
+    node_type *create_node(Args &&... arg)
+    {
+        node_type * ret = alloc.allocate();
+        ret->setNext(nullptr);
+        ret->setPrev(nullptr);
+        new (ret->getDataPtr()) value_type(forward<Args>(arg)...);
+        return ret;
+    }
+    void destroy_node(node_type *ptr)
+    {
+        ptr->data.value_type::~value_type();
+        alloc.deallocate(ptr);
+    }
+private:
+    Allocator alloc;
+};
+
+} // namespace list_detail
+
+template<typename Ty,typename Node>
+using list_base = list_detail::list_base<Ty,Node>;
+template<typename Ty,typename Allocator>
+using list = list_detail::list<Ty,Allocator>;
+
 } // namespace util
