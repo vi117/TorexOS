@@ -1,6 +1,6 @@
 #pragma once
 #include<acpi/rsdt.h>
-
+namespace acpi{
 struct GenericAddressStructure
 	{
 		/*
@@ -36,10 +36,10 @@ struct GenericAddressStructure
 		uint64_t Address;
 	};
 
-	struct FADT
+	struct FADT : public SDTHeader
 	{
-		SDTHeader header;
 		uint32_t FirmwareCtrl;
+		//40
 		uint32_t Dsdt;
 
 		// field used in ACPI 1.0; no longer in use, for compatibility only
@@ -80,8 +80,9 @@ struct GenericAddressStructure
 
 		// reserved in ACPI 1.0; used since ACPI 2.0+
 		uint16_t BootArchitectureFlags;
-
+		//must be 0
 		uint8_t  Reserved2;
+		//fixed feature flag
 		uint32_t Flags;
 
 		// 12 byte structure; see below for details
@@ -103,3 +104,4 @@ struct GenericAddressStructure
 		GenericAddressStructure X_GPE0Block;
 		GenericAddressStructure X_GPE1Block;
 	};
+} // namespace acpi

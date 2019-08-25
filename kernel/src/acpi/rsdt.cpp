@@ -30,7 +30,7 @@ bool acpi::doCheckSum(SDTHeader * tableHeader)
 
 	for (size_t i = 0; i < tableHeader->Length; i++)
 	{
-		sum += ((uint8_t *)tableHeader)[i];
+		sum += ((char *)tableHeader)[i];
 	}
 
 	return (sum == 0);
@@ -50,8 +50,8 @@ void acpi::printSDTs(text::raw_ostream & os){
     }
     else
     {
-        auto xsdt = physical_location(rsd_ptr->RsdtAddress)
-            .to_ker().to_ptr_of<acpi::XSDT>();
+        auto xsdp = (RSDPDescriptor20 *)rsd_ptr;
+        auto xsdt = xsdp->XsdtAddress.to_ker().to_ptr_of<acpi::XSDT>();
         for(size_t i = 0; i < xsdt->entry_count(); i++){
             auto header = xsdt->other_sdt_ptr[i]
                 .to_ker().to_ptr_of<acpi::SDTHeader>();
@@ -59,4 +59,36 @@ void acpi::printSDTs(text::raw_ostream & os){
             os << "\n";
         }
     }
+}
+
+acpi::SDTHeader *  acpi::find(const char * name)
+{
+static const acpi::RSDPDescriptor * rsd_ptr = nullptr;
+    if(rsd_ptr == nullptr){
+        rsd_ptr = findRSDP();
+    }
+    if (rsd_ptr->Revision < 2){
+        auto rsdt = physical_location(rsd_ptr->RsdtAddress)
+            .to_ker().to_ptr_of<acpi::RSDT>();
+        for(size_t i = 0; i < rsdt->entry_count(); i++){
+            auto header = physical_location(rsdt->other_sdt_ptr[i])
+                .to_ker().to_ptr_of<acpi::SDTHeader>();
+            if( *(uint32_t *)(&header->Signature[0]) == *(uint32_t *)(&name[0])){
+                return header;
+            }
+        }
+    }
+    else
+    {
+        auto xsdp = (RSDPDescriptor20 *)rsd_ptr;
+        auto xsdt = xsdp->XsdtAddress.to_ker().to_ptr_of<acpi::XSDT>();
+        for(size_t i = 0; i < xsdt->entry_count(); i++){
+            auto header = xsdt->other_sdt_ptr[i]
+                .to_ker().to_ptr_of<acpi::SDTHeader>();
+            if( *(uint32_t *)(&header->Signature[0]) == *(uint32_t *)(&name[0])){
+                return header;
+            }
+        }
+    }
+    return nullptr;
 }
