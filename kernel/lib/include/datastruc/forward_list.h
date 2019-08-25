@@ -78,7 +78,7 @@ public:
     using base_type::begin;
     using base_type::end;
 
-    constexpr explicit forward_list() : head(nullptr), alloc() {}
+    constexpr explicit forward_list() : base_type(), alloc() {}
 
     bool push_front(const value_type &element) noexcept
     {
@@ -130,7 +130,6 @@ private:
     }
 
 private:
-    node *head;
     allocator alloc;
 };
 } // namespace util
