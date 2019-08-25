@@ -25,7 +25,7 @@ void assert_impl( const char * message,
                     unsigned long line);
 void panicInException(int handler_num,const char * message);
 #ifdef DEBUG
-#define assert(x) ((void)((x)||(assert_impl(#x,__FILE__,__FUNCTION__,__LINE__))))
+#define assert(x) do{if(!(x)){assert_impl(#x,__FILE__,__FUNCTION__,__LINE__);}}while(false)
 extern errstream debug;
 #else
 #define assert(x) (void(0))
