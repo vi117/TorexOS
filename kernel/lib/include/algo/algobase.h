@@ -64,6 +64,22 @@ ForwardIt min_element(ForwardIt first, ForwardIt last,
 	}
 	return smallest;
 }
+template <typename ForwardIt, typename Compare>
+ForwardIt max_element(ForwardIt first, ForwardIt last,
+					  Compare comp)
+{
+	if (first == last)
+		return last;
+	ForwardIt greatest = first++;
+	for (; first != last; ++first)
+	{
+		if (comp(*greatest, *first))
+		{
+			greatest = first;
+		}
+	}
+	return greatest;
+}
 template <typename ForwardIt>
 ForwardIt min_element(ForwardIt first, ForwardIt last)
 {
@@ -80,13 +96,28 @@ ForwardIt min_element(ForwardIt first, ForwardIt last)
 	}
 	return smallest;
 }
+template <typename ForwardIt>
+ForwardIt max_element(ForwardIt first, ForwardIt last)
+{
+	if (first == last)
+		return last;
+	ForwardIt greatest = first++;
+	for (; first != last; ++first)
+	{
+		if (comp(*greatest, *first))
+		{
+			greatest = first;
+		}
+	}
+	return greatest;
+}
 template <typename T>
-T max(const T &a, const T &b)
+constexpr const T & max(const T &a, const T &b)
 {
 	return a < b ? b : a;
 }
 template <typename T>
-T min(const T &a, const T &b)
+constexpr const T & min(const T &a, const T &b)
 {
 	return a < b ? a : b;
 }

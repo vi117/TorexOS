@@ -3,8 +3,6 @@
 #include <memory/buddy.h>
 #include <memory/slub.h>
 
-#include <datastruc/bitset.h>
-
 #include <algo/sort.h>
 
 #include <math/ilog2.h>
@@ -120,9 +118,11 @@ static void makePool()
 static size_t size_of_mapping(){
     const mm::e820MmapEntry * begin = mm::e820_mmap_entry();
     const mm::e820MmapEntry * end = begin + mm::e820_mmap_entry_count();
-    end--;
-    auto sz = end->base + end->length;
-    return sz.address - 1;
+    auto max = util::max_element(begin,end,
+    [](const mm::e820MmapEntry & a,const mm::e820MmapEntry & b){
+        return a.base + a.length < b.base + b.length;
+    });
+    return max->base.address + max->length - 1;
 }
 static void makeKernelPTE()
 {
