@@ -59,7 +59,7 @@ extern %2
 interrupt_handler_%1:
     KSAVECONTEXT
     mov rdi, %1
-    sub rsp, 8
+    ;sub rsp, 8
     call %2
     KLOADCONTEXT
     iretq
@@ -95,9 +95,34 @@ interrupt_handler_head i;, ISRETCException
 %endrep
 interrupt_handler_head 30;, ISRSecurity
 interrupt_handler_head 31;, ISRETCException
-%assign i 32
-%rep 97
-interrupt_handler_head i;, ISRETCException
+
+interrupt_handler_head 32;, ISRTimer
+interrupt_handler_head 33 , ISR_do_IRQ
+interrupt_handler_head 34;, ISRSlave
+interrupt_handler_head 35;, ISRSerial2
+interrupt_handler_head 36;, ISRSerial1
+interrupt_handler_head 37;, ISRParallel2
+interrupt_handler_head 38;, ISRFloppy
+interrupt_handler_head 39;, ISRParallel1
+interrupt_handler_head 40;, ISRRTC
+interrupt_handler_head 41;, ISRReservedRQ
+interrupt_handler_head 42;, ISRNotUsed1
+interrupt_handler_head 43;, ISRNotUsed2
+interrupt_handler_head 44;, ISRMouse
+interrupt_handler_head 45;, ISRCoprocessor
+interrupt_handler_head 46;, ISRHDD1
+interrupt_handler_head 47;, ISRHDD2
+
+interrupt_handler_head 48;, ISRETCException
+%assign i 49
+%rep 79
+interrupt_handler_head i
+%assign i i+1
+%endrep
+
+%assign i 128
+%rep 128
+interrupt_handler_head i
 %assign i i+1
 %endrep
 
@@ -105,7 +130,7 @@ section .rodata.interrupt
 global interrupt_handler_vector
 interrupt_handler_vector:
 %assign i 0
-%rep 128
+%rep 256
 dq interrupt_handler_%[i]
 %assign i i+1
 %endrep

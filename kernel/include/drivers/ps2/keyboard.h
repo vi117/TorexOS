@@ -1,5 +1,8 @@
 #include <stdint.h>
 #include <keyboard/scancode.hpp>
+#include <drivers/driver.h>
+#include <datastruc/CircularQueue.h>
+#include <util/interrupt_lock.h>
 
 #pragma once
 
@@ -24,11 +27,7 @@ union KeyboardLED {
         return data;
     }
 };
-
-class state
-{
-public:
-    // 키보드 활성화 함수, 대체적으로 바이오스에서 이미 활성화 시키지만 혹시 몰라서 또 시킴.
+    // 
     // Return Value
     //true	: Success
     //false	: Failure
@@ -38,9 +37,35 @@ public:
 			Return Value
 			true	: Success
 			false	: Failure */
-    static bool changeKeyboardLED(KeyboardLED state);
+    bool changeKeyboardLED(KeyboardLED state);
 
     bool isAviliable();
     key::ScanCode getScanCode();
-};
+
+    class Keyboard;
+    class KeyboardIRQHandler : public drv::IrqHandler
+    {
+    public:
+        KeyboardIRQHandler(Keyboard * ptr):context(ptr){}
+
+        virtual drv::IrqStatus topHalf() override;
+        
+        Keyboard * context;
+    };
+    class Keyboard : public drv::CharactorDriver {
+    public:
+        Keyboard():irq_handler(this),initialized(false){keyQueue.initialize();}
+        bool initialize();
+        virtual bool probe() override {return initialize();}
+        virtual const char * name() override{return "ps2";}
+        virtual int version() override {return 1;}
+        virtual size_t read(uint8_t * buf, size_t length) override;
+        friend class KeyboardIRQHandler;
+    private:
+        util::CircularQueue<uint8_t,96> keyQueue;
+        interrupt_lock keyboardQueueLock;
+        KeyboardLED led;
+        KeyboardIRQHandler irq_handler;
+        bool initialized;
+    };
 } // namespace ps2

@@ -26,6 +26,7 @@ set(CMAKE_EXE_LINKER_FLAGS "-nostdlib -T kernel.ld -Xlinker -Map=output.map")
 set(CXX_LIB_SRC_FILE 
 "stringutil.cpp"
 "raw_ostream.cpp"
+#"datastruct/com_string.cpp"
  )
 
 set(TEMP "")
@@ -38,6 +39,7 @@ unset(TEMP)
 set(CXX_SRC_FILE  
 "debug/debug.cpp"
 "debug/logger.cpp"
+"acpi/rsdt.cpp"
 "memory/memscan.cpp" 
 "memory/mm.cpp"
 "memory/slub.cpp"
@@ -46,9 +48,13 @@ set(CXX_SRC_FILE
 "vga/cursor.cpp" 
 "vga/vgaout.cpp"
 "arch/mminit.cpp"
+"arch/interrupt.cpp"
 "keyboard/scancode.cpp"
 "drivers/ps2/keyboard.cpp"
-"drivers/ps2/ps2.cpp")
+"drivers/timer/cmos.cpp"
+#"drivers/ps2/ps2.cpp"
+"pic/pic.cpp"
+)
 
 set(CXX_SRC_FILE ${CXX_SRC_FILE} "main.cpp")
 

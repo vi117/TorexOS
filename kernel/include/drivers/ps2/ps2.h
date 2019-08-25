@@ -23,8 +23,7 @@ namespace ps2
 		{
 			port = 0x64,
 		};
-		State_Register(){}
-
+		
 		operator uint8_t()
 		{
 			return *(uint8_t *)this;
@@ -50,13 +49,33 @@ namespace ps2
 		};
 		enum command
 		{
+			test_device_controller = 0xAA,
+
+			device_keyboard_test = 0xAB,
 			device_keyboard_active = 0xAE,
 			device_keyboard_deactive = 0xAD,
+
 			device_mouse_active = 0xA8,
 			device_mouse_deactive = 0xA7,
+			
 			ready_send_to_mouse = 0xd4,
+
 			command_byte_read=0x20,
 			command_byte_write=0x60,
+		};
+		//it could read through command_byte_read command.
+		union Configuration{
+		 	struct{
+			bool firstPortInterrupt : 1;
+			bool secondPortInterrupt : 1;
+			bool passPOST : 1;
+			bool reserved1 : 1; //must be 0.
+			bool firstPortClock : 1; // if it is set to 0.
+			bool secondPortClock : 1; // if it is set to 0, second port device is enabled.
+			bool firstPortTranslation : 1;
+			bool reserved2 : 1; //must be 0.
+			};
+		uint8_t data;
 		};
 		reference send(uint8_t b)
 		{
@@ -79,12 +98,15 @@ namespace ps2
 		{
 			port = 0x60,
 			ack = 0xFA,//success Command;
+			respend = 0xFE
 		};
 		enum command
 		{
 			changeLED=0xED,
-			device_keyboard_active=0xF4,
+			device_keyboard_active=0xF4, //device will send scancode.
 			device_mouse_active=0xF4,
+			reset_device = 0xFF,
+			set_or_get_scan_code_set= 0xF0
 		};
 		reference write(uint8_t b)
 		{
