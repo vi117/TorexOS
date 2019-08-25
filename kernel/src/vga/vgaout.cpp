@@ -4,7 +4,8 @@
 static text::Cursor cursor;
 static text::charactor * screen;
 static text::color literColor = {text::ForeWhite,text::BackMagenta};
-
+#pragma GCC push_options
+#pragma GCC optimize ("O0")
 void text::raw_print(int x,int y, const char * str){
     charactor * scr = text::raw_screen();
 	scr += y * 80 + x;
@@ -15,6 +16,7 @@ void text::raw_print(int x,int y, const char * str){
 		scr++;
 	}
 }
+#pragma GCC pop_options
 
 void text::vga_initialize(int width,int height){
 	vga_updateScreenWithColor(literColor);
