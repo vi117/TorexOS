@@ -40,7 +40,7 @@ void CMOS::CMOS_RTC::update()
 
 const char * CMOS::CMOS_RTC::dayOfWeekToCString()
 {
-	static char * dayOfWeekStringTable[8] = { "Error", "Sunday","Monday",
+	static const char * dayOfWeekStringTable[8] = { "Error", "Sunday","Monday",
 		"Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
 	if (dayOfWeek >= 8)
 		return dayOfWeekStringTable[0];
