@@ -36,6 +36,9 @@ struct address_base
     inline constexpr bool operator>(address_t rhs) const{return address > rhs.address;}
     inline constexpr bool operator>=(address_t rhs) const{return address >= rhs.address;}
     inline constexpr bool operator<=(address_t rhs) const{return address <= rhs.address;}
+
+    inline constexpr bool operator==(nullptr_t rhs) const{return address == 0;}
+    inline constexpr bool operator!=(nullptr_t rhs) const{return address != 0;}
     
     /*must be alignment expressed as 2^n.*/
     constexpr address_t align(uint64_t alignment) const{
@@ -50,7 +53,14 @@ struct phys_addr_t : public address_base<phys_addr_t>
     using BaseType = address_base;
     using BaseType::address_base;
     constexpr ker_addr_t to_ker() const;
+
+    friend constexpr phys_addr_t location(uintptr_t);
 };
+inline constexpr phys_addr_t physical_location(uintptr_t locate){
+    phys_addr_t ret;
+    ret.address = locate;
+    return ret;
+}
 struct ker_addr_t : public address_base<ker_addr_t>
 {
     using BaseType = address_base;
@@ -80,7 +90,6 @@ inline constexpr phys_addr_t ker_addr_t::to_phys() const
 {
     return phys_addr_t(address & (~0xffff800000000000));
 }
-
 inline constexpr unsigned long long operator"" _KB(unsigned long long a)
 {
     return a * 1024;
