@@ -13,6 +13,7 @@
 
 #include <acpi/rsdt.h>
 #include <drivers/timer/cmos.h>
+#include <drivers/timer/pit.h>
 
 [[noreturn]]
 int main()
@@ -35,6 +36,7 @@ int main()
      <<" " << (int)t.hour<<"h "
      << (int)t.minute<<"m " << (int)t.second << "s \n";*/
     x86_64::IRQ_init();
+    PIT::initialize(PIT::msToCount(1),true);
     setinterruptflag();
     
     //PIC8259::initialize(32);

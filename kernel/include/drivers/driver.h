@@ -14,8 +14,8 @@ namespace drv
     class CharactorDriver : public IDriver
     {
     public:
-        virtual size_t read(uint8_t * buf,size_t length);
-        //write is not implemented yet...
+        virtual size_t read([[maybe_unused]] uint8_t * buf,[[maybe_unused]] size_t length){return 0;}
+        virtual size_t write([[maybe_unused]] uint8_t * buf,[[maybe_unused]] size_t length){return 0;}
     };
 
     enum IrqStatus

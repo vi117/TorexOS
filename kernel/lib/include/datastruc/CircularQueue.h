@@ -14,6 +14,8 @@ namespace util
 		{
 			size = _size,
 		};
+		CircularQueue():first(0),last(0),isfull(false),data{0,}{}
+		
 		bool full(){
 			return isfull;
 		}
@@ -43,13 +45,6 @@ namespace util
 					last = 0;
 				if (first == last) isfull = true;
 			}
-		}
-		void initialize()
-		{
-			first = 0;
-			last = 0;
-			isfull = false;
-			text::memset(data,0,size*sizeof(elementType));
 		}
 
 	private:

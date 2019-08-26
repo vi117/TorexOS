@@ -96,7 +96,7 @@ interrupt_handler_head i;, ISRETCException
 interrupt_handler_head 30;, ISRSecurity
 interrupt_handler_head 31;, ISRETCException
 
-interrupt_handler_head 32;, ISRTimer
+interrupt_handler_head 32 , ISR_do_Timer_IRQ
 interrupt_handler_head 33 , ISR_do_IRQ
 interrupt_handler_head 34;, ISRSlave
 interrupt_handler_head 35;, ISRSerial2

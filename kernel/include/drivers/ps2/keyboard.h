@@ -54,7 +54,7 @@ union KeyboardLED {
     };
     class Keyboard : public drv::CharactorDriver {
     public:
-        Keyboard():irq_handler(this),initialized(false){keyQueue.initialize();}
+        Keyboard():irq_handler(this),initialized(false){}
         bool initialize();
         virtual bool probe() override {return initialize();}
         virtual const char * name() override{return "ps2";}
