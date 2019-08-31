@@ -35,9 +35,23 @@ bool acpi::doCheckSum(SDTHeader * tableHeader)
 
 	return (sum == 0);
 }
+static const acpi::RSDPDescriptor * rsd_ptr = nullptr;
+static acpi::FADT * fadt_ptr = nullptr;
+static acpi::MADT * madt_ptr = nullptr;
+
+bool acpi::prepareTable()
+{
+    rsd_ptr = findRSDP();
+    if(rsd_ptr == nullptr)
+        return false;
+    fadt_ptr = (FADT *)findSDT("FACP");
+    madt_ptr = (MADT *)findSDT("APIC");
+    return true;
+}
 
 void acpi::printSDTs(text::raw_ostream & os){
-    auto rsd_ptr = findRSDP();
+    if(rsd_ptr == nullptr)
+        prepareTable();
     if (rsd_ptr->Revision < 2){
         auto rsdt = physical_location(rsd_ptr->RsdtAddress)
             .to_ker().to_ptr_of<acpi::RSDT>();
@@ -61,12 +75,11 @@ void acpi::printSDTs(text::raw_ostream & os){
     }
 }
 
-acpi::SDTHeader *  acpi::find(const char * name)
+acpi::SDTHeader *  acpi::findSDT(const char * name)
 {
-static const acpi::RSDPDescriptor * rsd_ptr = nullptr;
-    if(rsd_ptr == nullptr){
-        rsd_ptr = findRSDP();
-    }
+    if(rsd_ptr == nullptr)
+        prepareTable();
+    
     if (rsd_ptr->Revision < 2){
         auto rsdt = physical_location(rsd_ptr->RsdtAddress)
             .to_ker().to_ptr_of<acpi::RSDT>();
@@ -91,4 +104,15 @@ static const acpi::RSDPDescriptor * rsd_ptr = nullptr;
         }
     }
     return nullptr;
+}
+
+acpi::FADT * acpi::findFADT(){
+    if(rsd_ptr == nullptr)
+        prepareTable();
+    return fadt_ptr;
+}
+acpi::MADT * acpi::findMADT(){
+    if(rsd_ptr == nullptr)
+        prepareTable();
+    return madt_ptr;
 }

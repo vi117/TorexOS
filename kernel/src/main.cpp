@@ -15,6 +15,8 @@
 #include <drivers/timer/cmos.h>
 #include <drivers/timer/pit.h>
 
+#include <debug/debug.h>
+
 [[noreturn]]
 int main()
 {
@@ -24,6 +26,8 @@ int main()
     x86_64::init_all();
     out << "Memory Entry Count : ";
     _init();
+    if(!acpi::prepareTable())
+        panic("couldn't ACPI.");
     //memory::printMemoryMap(out);
     out << "start memory collecting...\n";
     memory::init();

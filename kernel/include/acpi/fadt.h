@@ -39,7 +39,7 @@ struct GenericAddressStructure
 	struct FADT : public SDTHeader
 	{
 		uint32_t FirmwareCtrl;
-		//40
+		
 		uint32_t Dsdt;
 
 		// field used in ACPI 1.0; no longer in use, for compatibility only

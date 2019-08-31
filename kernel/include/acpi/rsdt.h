@@ -45,6 +45,14 @@ namespace acpi
 
 	bool doCheckSum(SDTHeader *);
 
-	SDTHeader * find(const char * name);
+	SDTHeader * findSDT(const char * name);
 	void printSDTs(text::raw_ostream & os);
+
+	//false when acpi table does not exist
+	bool prepareTable();
+
+	class FADT;
+	class MADT;
+	FADT * findFADT();
+	MADT * findMADT();
 }
