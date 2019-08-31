@@ -142,16 +142,10 @@ Success:
 	return false;
 }
 
-bool ps2::isAviliable()
-{
-	return isOutBufFull();
-}
-
 key::ScanCode ps2::getScanCode()
 {	
 	return buffer.read();
 }
-#include<acpi/rsdt.h>
 #include<acpi/fadt.h>
 #include<debug/logger.h>
 bool ps2::Keyboard::initialize()
@@ -159,12 +153,12 @@ bool ps2::Keyboard::initialize()
 	if(initialized)
 		return true;
 	//https://uefi.org/sites/default/files/resources/ACPI_6_2.pdf page 191
-	/*auto fadt = (acpi::FADT *)acpi::find("FACP");
-	if( ! ((bool)(fadt->BootArchitectureFlags & (1<<1) )) )
+	auto fadt = acpi::findFADT();
+	if(fadt != nullptr && fadt->Revision > 1 && ! ((bool)(fadt->BootArchitectureFlags & (1<<1) )) )
 	{
 		logger << "ps2 not supported. flags : " << fadt->BootArchitectureFlags << "\n";
 		return false;
-	}*/
+	}
 	//interrupt_lock t;
 	//t.lock();
 	bool success =	activate();
@@ -190,7 +184,7 @@ drv::IrqStatus ps2::KeyboardIRQHandler::topHalf()
 {
 	uint8_t sc;
 	
-	if (isAviliable()&&(!ps2::get_state_register().auxb))
+	if (isOutBufFull()&&(!ps2::get_state_register().auxb))
 	{
 		context->keyboardQueueLock.lock();
 		if (!context->keyQueue.full()) {

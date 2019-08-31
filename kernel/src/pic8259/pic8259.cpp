@@ -1,4 +1,4 @@
-#include <pic/pic.h>
+#include <pic8259/pic8259.h>
 #include <intrins.h>
 #include <util/interrupt_lock.h>
 

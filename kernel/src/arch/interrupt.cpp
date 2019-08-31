@@ -1,5 +1,5 @@
-#include<arch/interrupt.h>
-#include<pic/pic.h>
+#include <arch/interrupt.h>
+#include <pic8259/pic8259.h>
 #include <memory/mm.h>
 #include <vga/vgaout.h>
 #include <debug/debug.h>
@@ -41,7 +41,6 @@ extern "C" void ISR_do_Timer_IRQ(uint64_t num)
         text::raw_print(80-5,1,"[  s]");
         time_ms++;
         auto second = time_ms/1000;
-        second /= 100;
         char buf[4]={0,};
         buf[0] = second / 10 + '0';
         buf[1] = second % 10 + '0';

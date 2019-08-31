@@ -4,7 +4,7 @@
 #include <arch/mminit.h>
 #include <memory/mm.h>
 
-#include <pic/pic.h>
+#include <pic8259/pic8259.h>
 #include <arch/interrupt.h>
 
 #include <drivers/ps2/keyboard.h>
