@@ -5,6 +5,7 @@
 extern uint8_t IST_END;
 namespace x86_64
 {
+#pragma pack(push,1)
 struct cpuContext
 {
     uint64_t gs;   //0
@@ -61,6 +62,7 @@ struct fpuContext
     xmmRegister xmm[16];
     uint64_t reserved[2 * 6];
 };
+#pragma pack(pop)
 cpuContext * getContextInException(){
     return reinterpret_cast<cpuContext *>(&IST_END - sizeof(cpuContext));
 }

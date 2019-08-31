@@ -6,7 +6,7 @@ inline auto BcdToBinary(uint8_t x) -> uint8_t
 {
     return ((x >> 4) * 10) + (x & 0x0F);
 }
-
+#pragma pack(push,1)
 struct CMOS_RTC
 {
     uint8_t hour;
@@ -21,4 +21,5 @@ struct CMOS_RTC
     
     const char *dayOfWeekToCString();
 };
+#pragma pack(pop)
 } // namespace CMOS
