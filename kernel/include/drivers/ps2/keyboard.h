@@ -38,8 +38,7 @@ union KeyboardLED {
 			true	: Success
 			false	: Failure */
     bool changeKeyboardLED(KeyboardLED state);
-
-    bool isAviliable();
+    
     key::ScanCode getScanCode();
 
     class Keyboard;
