@@ -9,9 +9,18 @@ namespace acpi
         LocalApic = 0,
         IOApic = 1,
         InterruptSourceOverride = 2,
-        NMI = 4,
-        LocalApicAddressOverride = 5
-    }
+        NMI = 3,
+        LocalNMI = 4,
+        LocalApicAddressOverride = 5,
+        Localx2Apic = 9,
+    };
+    struct MPS_INTI_Flags
+    {
+        uint8_t Polarity : 2;
+        uint8_t TriggerMode : 2;
+        uint16_t Reserved : 12;
+    };
+    
     struct APICRecordHeader
     {
         APICEntryType Type;
@@ -21,7 +30,7 @@ namespace acpi
     {
         uint8_t AcpiProcessorID;
         uint8_t ApicID;
-        uint32_t Flags; // 1 = Processor Enabled
+        uint32_t Flags; // 1 = Processor Enabled, 2 = online capbable
     };
     struct IOApicEntry : public APICRecordHeader
     {
@@ -35,18 +44,30 @@ namespace acpi
         uint8_t BusSource;
         uint8_t IrqSource;
         uint32_t GlobalSystemInterrupt;
-        uint16_t Flags;
+        MPS_INTI_Flags Flags;
     };
     struct NMIEntry : public APICRecordHeader
     {
+        MPS_INTI_Flags Flags;
+        uint32_t GlobalSystemInterrupt;
+    };
+    struct LocalNMIEntry : public APICRecordHeader
+    {
         uint8_t AcpiProcessorID;
-        uint16_t Flags;
+        MPS_INTI_Flags Flags;
         uint8_t LINT; // 0 or 1
     };
     struct LocalApicAddressOverrideEntry : public APICRecordHeader
     {
         uint16_t reserved;
         uint64_t LocalApicPhysicalAddress;
+    };
+    struct Localx2ApicEntry : public APICRecordHeader
+    {
+        uint16_t Reserved1;
+        uint32_t x2apicID;
+        uint32_t Flags; // 1 = Processor Enabled, 2 = online capbable
+        uint32_t ProcessorUID;
     };
 
     struct ApicRecordIterator
@@ -81,7 +102,4 @@ namespace acpi
         }
     };
     #pragma pack(pop)
-    inline MADT * findMADT(){
-        return (MADT *)findSDT("APIC");
-    }
 } // namespace acpi
