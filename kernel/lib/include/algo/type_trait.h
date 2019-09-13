@@ -47,20 +47,21 @@ template <class T>
 struct add_rvalue_reference : decltype(detail::try_add_rvalue_reference<T>(0)) {};
 
 template <typename Ty>
-struct remove_reference
-{
-    typedef Ty type;
-};
+struct remove_reference{using type = Ty;};
 template <typename Ty>
-struct remove_reference<Ty &>
-{
-    typedef Ty type;
-};
+struct remove_reference<Ty &>{using type = Ty;};
 template <typename Ty>
-struct remove_reference<Ty &&>
+struct remove_reference<Ty &&>{using type = Ty;};
+
+namespace detail
 {
-    typedef Ty type;
-};
+template <class T>
+auto try_add_pointer(int) -> type_identity<typename remove_reference<T>::type *>;
+template <class T>
+auto try_add_pointer(...) -> type_identity<T>;
+}
+template <class T>
+struct add_pointer : decltype(detail::try_add_pointer<T>(0)) {};
 
 template <typename T>
 struct is_lvalue_reference : public true_type{};
@@ -76,6 +77,29 @@ struct enable_if<true, T> { typedef T type; };
 
 template< bool B, class T = void >
 using enable_if_t = typename enable_if<B,T>::type;
+
+template<typename T>
+struct is_integral : public false_type{};
+#define DEFINT(x) template<> struct is_integral<x> : public true_type{}
+DEFINT(short);
+DEFINT(unsigned short);
+DEFINT(int);
+DEFINT(long);
+DEFINT(unsigned int);
+DEFINT(unsigned long);
+DEFINT(long long);
+DEFINT(unsigned long long);
+#undef DEFINT
+template< class T >
+struct is_arithmetic : integral_constant<bool,is_integral<T>::value > {};
+namespace detail {
+template<typename T,bool = is_arithmetic<T>::value>
+struct is_unsigned : integral_constant<bool, T(0) < T(-1)> {};
+template<typename T>
+struct is_unsigned<T,false> : false_type {};
+} // namespace detail
+template<typename T>
+struct is_unsigned : detail::is_unsigned<T>::type {};
 
 
 } // namespace util
