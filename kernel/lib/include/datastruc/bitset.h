@@ -39,7 +39,7 @@ namespace util
     {
         size_t i = 0;
         uint64_t * const d = reinterpret_cast<uint64_t *>(data);
-        while (d[i] == 0 || i < size){ i++;}
+        while (d[i] == 0 || i < size) i++;
         //assume little endian.
         const auto r = i*8 + math::ctz64(d[i]);
         return r < size*8 ? size*8 : r;
@@ -48,7 +48,7 @@ namespace util
     {
         size_t i = 0;
         uint64_t * const d = reinterpret_cast<uint64_t *>(data);
-        while (d[i] == (uint64_t)(-1) || i < size){ i++;}
+        while (d[i] == (uint64_t)(-1) || i < size) i++;
         //assume little endian.
         const auto r = i*8 + math::ctz64(!d[i]);
         return r < size*8 ? size*8 : r;
