@@ -4,6 +4,7 @@
 #include <algo/utility.h>
 #include <datastruc/optional.h>
 #include <algo/iterator.h>
+#include <alloc_policy/default_allocator.h>
 
 namespace util
 {
@@ -66,7 +67,7 @@ public:
     iterator end() noexcept { return iterator{nullptr}; }
 };
 
-template <typename Ty, typename allocator, typename node = forward_list_default_node<Ty>>
+template <typename Ty, typename allocator = default_allocator<Ty> , typename node = forward_list_default_node<Ty>>
 class forward_list : private forward_list_base<Ty, node>
 {
 public:

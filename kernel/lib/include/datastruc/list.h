@@ -3,6 +3,7 @@
 #include<algo/utility.h>
 #include<algo/iterator.h>
 #include<algo/new.h>
+#include<alloc_policy/default_allocator.h>
 
 namespace util
 {
@@ -43,42 +44,42 @@ namespace detail
     
 } // namespace detail
 
+template<typename Ty>
+struct list_node_trait
+{
+    using pointer = Ty *;
+    inline pointer getNext() const noexcept {return list_next;}
+    inline pointer getPrev() const noexcept {return list_prev;}
+    inline void setNext(pointer ptr) noexcept {list_next = ptr;}
+    inline void setPrev(pointer ptr) noexcept {list_prev = ptr;}
+    static inline pointer getNullNode() noexcept {return nullptr;}
+
+    pointer list_next;
+    pointer list_prev;
+};
 template <typename Ty>
-struct list_default_node
+struct list_default_node : public list_node_trait<list_default_node<Ty>>
 {
     using pointer = list_default_node *;
     using elem = Ty;
 
-    inline pointer getNext() const noexcept {return list_next;}
-    inline pointer getPrev() const noexcept {return list_prev;}
-    inline void setNext(pointer ptr) noexcept {list_next = ptr;}
-    inline void setPrev(pointer ptr) noexcept {list_prev = ptr;}
-    static inline pointer getNullNode() noexcept {return nullptr;}
     elem * getDataPtr() {return addressof(data);}
-
-    pointer list_next;
-    pointer list_prev;
+    
     elem data;
 };
 template <>
-struct list_default_node<void>
+struct list_default_node<void>  : public list_node_trait<list_default_node<void> >
 {
     using pointer = list_default_node *;
     using elem = void;
     
-    inline pointer getNext() const noexcept {return list_next;}
-    inline pointer getPrev() const noexcept {return list_prev;}
-    inline void setNext(pointer ptr) noexcept {list_next = ptr;}
-    inline void setPrev(pointer ptr) noexcept {list_prev = ptr;}
-    static inline pointer getNullNode() noexcept {return nullptr;}
-    elem * getDataPtr() const {return nullptr;}
-
-    pointer list_next;
-    pointer list_prev;
+    elem * getDataPtr() {return nullptr;}
 };
+
+
 #define list_assert(x) (void)(x)
 
-template <typename Ty, typename node = list_default_node<Ty>>
+template <typename Ty, typename node = list_default_node<Ty> >
 class list_base
 {
 public:
@@ -95,7 +96,7 @@ public:
         using reference = elem &;
         using iterator_category = bidirectional_iterator_tag;
 
-        constexpr explicit iterator() : pos(nullptr) {}
+        constexpr explicit iterator() : pos(node::getNullNode()) {}
         constexpr iterator(node * t) : pos(t) {}
         constexpr iterator(const iterator &t) : pos(t.pos) {}
 
@@ -127,11 +128,14 @@ public:
         else if (obj == back_iterator())
             pop_back_node();
         else
-            join_list(obj->getPrev(), obj->getNext());
+            join_list(obj.get()->getPrev(), obj.get()->getNext());
     }
 
     iterator front_iterator() const noexcept {return iterator{head};}
     iterator back_iterator() const noexcept {return iterator{tail};}
+
+    node * front_node() const noexcept{return head;}
+    node * back_node() const noexcept{return tail;}
 
     iterator begin() const noexcept {return iterator{head};}
     iterator end() const noexcept {return iterator{null_node()};}
@@ -231,7 +235,7 @@ public:
     node * tail;
 };
 template<typename Ty,typename Allocator>
-class list : public list_base<Ty>
+class list : protected list_base<Ty>
 {
 public:
     using base = list_base<Ty>;
@@ -244,7 +248,14 @@ public:
     using typename base::back;
     using typename base::node_type;
     using typename base::value_type;
-
+    ~list()
+    {
+        while(base::empty()){
+            auto it = base::front_node();
+            base::pop_front_node();
+            destroy_node(it);
+        }
+    }
     bool push_front(const value_type &element) noexcept
     {
         auto new_node = create_node(element);
@@ -264,6 +275,7 @@ public:
     void erase(iterator it)
     {
         base::pop_node(it);
+        destroy_node(it.get());
     }
 private:
     template <typename... Args>
@@ -288,7 +300,7 @@ private:
 
 template<typename Ty,typename Node>
 using list_base = list_detail::list_base<Ty,Node>;
-template<typename Ty,typename Allocator>
+template<typename Ty,typename Allocator = default_allocator<util::list_detail::list_default_node< Ty > > >
 using list = list_detail::list<Ty,Allocator>;
 
 } // namespace util

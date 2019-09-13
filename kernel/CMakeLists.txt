@@ -18,7 +18,7 @@ set ( CMAKE_BUILD_TYPE <Debug|Release> )
 
 set(CMAKE_VERBOSE_MAKEFILE true )
 set(CMAKE_CXX_COMPILER g++)
-set(CMAKE_CXX_FLAGS "-ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -fno-stack-protector -g")
+set(CMAKE_CXX_FLAGS "-ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -fno-stack-protector -g -fno-use-cxa-atexit -fno-threadsafe-statics")
 set(CMAKE_ASM_NASM_OBJECT_FORMAT "elf64")
 set(CMAKE_ASM_NASM_FLAGS "-g")
 set(CMAKE_EXE_LINKER_FLAGS "-nostdlib -T kernel.ld -Xlinker -Map=output.map")
@@ -26,7 +26,7 @@ set(CMAKE_EXE_LINKER_FLAGS "-nostdlib -T kernel.ld -Xlinker -Map=output.map")
 set(CXX_LIB_SRC_FILE 
 "stringutil.cpp"
 "raw_ostream.cpp"
-#"datastruct/com_string.cpp"
+"datastruc/com_string.cpp"
  )
 
 set(TEMP "")
@@ -52,8 +52,13 @@ set(CXX_SRC_FILE
 "keyboard/scancode.cpp"
 "drivers/ps2/keyboard.cpp"
 "drivers/timer/cmos.cpp"
-#"drivers/ps2/ps2.cpp"
-"pic/pic.cpp"
+"drivers/timer/pit.cpp"
+"pic8259/pic8259.cpp"
+"process/pid.cpp"
+"process/idletask.cpp"
+"process/process.cpp"
+"process/scheduler.cpp"
+"process/simple_scheduler.cpp"
 )
 
 set(CXX_SRC_FILE ${CXX_SRC_FILE} "main.cpp")
@@ -64,7 +69,7 @@ foreach(list_arg ${CXX_SRC_FILE})
 endforeach(list_arg)
 set(CXX_SRC_FILE ${TEMP})
 
-set(ASM_SRC_FILE "src/arch/early_main.nasm" "src/arch/ISR.nasm")
+set(ASM_SRC_FILE "src/arch/early_main.nasm" "src/arch/ISR.nasm" "src/arch/switching.nasm")
 
 include_directories("include/" "lib/include")
 

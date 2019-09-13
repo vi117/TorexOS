@@ -6,7 +6,7 @@
 
 namespace text
 {
-  //llvm raw_ostream 조금 고쳐서 사용.
+//llvm raw_ostream 조금 고쳐서 사용.
 class raw_ostream
 {
 private:
@@ -14,13 +14,14 @@ private:
   char *cur;
   char *end;
 
-typedef raw_ostream& reference ;
-
+public:
+  typedef raw_ostream &reference;
+  virtual ~raw_ostream() noexcept {}
 public:
   constexpr explicit raw_ostream() : start(nullptr), cur(nullptr), end(nullptr) {}
-  explicit raw_ostream(char *buf, size_t size) : start(buf),cur(start), end(buf + size)  {}
-  raw_ostream(const reference ) = delete;
-  void operator=(const reference ) = delete;
+  explicit raw_ostream(char *buf, size_t size) : start(buf), cur(start), end(buf + size) {}
+  raw_ostream(const reference) = delete;
+  void operator=(const reference) = delete;
 
   void flush()
   {
@@ -82,7 +83,6 @@ public:
   reference operator<<(unsigned long long N);
   reference operator<<(long long N);
   reference operator<<(const void *P);
-
 
   reference operator<<(unsigned int N)
   {
