@@ -1,7 +1,7 @@
 #pragma once
 #include<stdint.h>
 #include<memory/address.h>
-#include <math/ilog2.h>
+#include<math/ilog2.h>
 
 namespace memory
 {
@@ -29,10 +29,6 @@ struct CommonBlockInfo
 
 struct FreeBlock
 {
-    enum
-    {
-        null_index = 0xffffffffff
-    };
     PageFlag flag;
     order_t size;
     FreeBlock * prev;
@@ -52,6 +48,7 @@ constexpr uint16_t in_use_max = 0xffff;
 class SlubAllocator;
 struct SlubBlock
 {
+    using elem = SlubBlock;
     PageFlag flag;
     order_t size;
     uint16_t in_use;

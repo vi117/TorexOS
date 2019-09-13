@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <compiler.h>
 
 #ifndef _CONTEXT_H_
 #define _CONTEXT_H_
@@ -63,9 +64,15 @@ struct fpuContext
     uint64_t reserved[2 * 6];
 };
 #pragma pack(pop)
-cpuContext * getContextInException(){
+force_inline cpuContext * getContextInException(){
     return reinterpret_cast<cpuContext *>(&IST_END - sizeof(cpuContext));
 }
 } // namespace x86_64
-
+//it do not handle interrupt occurasnce.
+extern "C" void SwitchContext(x86_64::cpuContext * prev,x86_64::cpuContext * next);
+namespace x86_64{
+force_inline void switch_to(cpuContext * prev,cpuContext * next){
+    SwitchContext(prev,next);
+}
+}
 #endif

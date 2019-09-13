@@ -7,8 +7,9 @@ namespace drv
     {
     public:
     virtual const char * name() = 0;
-    virtual bool probe() {return false;}
+    virtual bool probe() { return false; }
     virtual int version() = 0;
+    virtual ~IDriver() noexcept{}
     };
 
     class CharactorDriver : public IDriver
@@ -18,17 +19,21 @@ namespace drv
         virtual size_t write([[maybe_unused]] uint8_t * buf,[[maybe_unused]] size_t length){return 0;}
     };
 
-    enum IrqStatus
+    enum class IrqStatus
     {
-        Irq_Status_Success = 0,
+        Success = 0,
+        NotHandled = 1,
     };
     class IrqHandler
     {
     public:
         virtual IrqStatus topHalf()
         {
-            return Irq_Status_Success;
+            return IrqStatus::NotHandled;
         }
+        virtual ~IrqHandler() noexcept {}
+
+        virtual const char * name(){return "NeverCalled";}
     };
 } // namespace drv
 

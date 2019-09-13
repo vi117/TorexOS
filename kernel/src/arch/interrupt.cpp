@@ -29,7 +29,9 @@ extern "C" void ISR_do_IRQ(uint64_t num)
     text::raw_print(80-3,0,buf);
     for(auto& it : irq->actions)
     {
-        it->topHalf();
+        auto status = it->topHalf();
+        if (status == drv::IrqStatus::Success)
+            break;
     }
     PIC8259::sendEOI(num - irq_start);
 }
@@ -42,14 +44,16 @@ extern "C" void ISR_do_Timer_IRQ(uint64_t num)
         time_ms++;
         auto second = time_ms/1000;
         char buf[4]={0,};
-        buf[0] = second / 10 + '0';
+        buf[0] = ((second / 10)%10) + '0';
         buf[1] = second % 10 + '0';
         text::raw_print(80-4,1,buf);
     }
     auto irq = &irq_desc[num - irq_start];
     for(auto& it : irq->actions)
     {
-        it->topHalf();
+        auto status = it->topHalf();
+        if (status == drv::IrqStatus::Success)
+            break;
     }
     PIC8259::sendEOI(num - irq_start);
 }

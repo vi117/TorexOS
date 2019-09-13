@@ -4,7 +4,7 @@ set(CMAKE_VERBOSE_MAKEFILE true )
 
 set(SRC_FILE "src/stringutil.cpp" 
 "src/raw_ostream.cpp" 
-#"src/datastruct/com_string.cpp"
+"src/datastruc/com_string.cpp"
 #"src/math/ilog2.cpp"
 #"src/alloc_policy/buddy_allocator.cpp"
 )

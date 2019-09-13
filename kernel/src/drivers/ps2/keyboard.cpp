@@ -159,17 +159,13 @@ bool ps2::Keyboard::initialize()
 		logger << "ps2 not supported. flags : " << fadt->BootArchitectureFlags << "\n";
 		return false;
 	}
-	//interrupt_lock t;
-	//t.lock();
 	bool success =	activate();
 	if(success)
 	{
 		x86_64::register_handler(1,&irq_handler);
 		initialized = true;
-		//t.unlock();
 		return true;
 	}
-	//t.unlock();
 	return false;
 }
 size_t ps2::Keyboard::read(uint8_t * buf, size_t size)
@@ -182,7 +178,7 @@ size_t ps2::Keyboard::read(uint8_t * buf, size_t size)
 }
 drv::IrqStatus ps2::KeyboardIRQHandler::topHalf()
 {
-	uint8_t sc;
+	uint8_t sc = 0;//for taking off uninitialized variable warning
 	
 	if (isOutBufFull()&&(!ps2::get_state_register().auxb))
 	{
@@ -194,7 +190,7 @@ drv::IrqStatus ps2::KeyboardIRQHandler::topHalf()
 		else
 		{
 			context->keyboardQueueLock.unlock();
-			return drv::Irq_Status_Success;
+			return drv::IrqStatus::Success;
 		}
 		context->keyboardQueueLock.unlock();
 	}
@@ -216,5 +212,5 @@ drv::IrqStatus ps2::KeyboardIRQHandler::topHalf()
 	}
 	if (changed)
 		changeKeyboardLED(context->led);
-	return drv::Irq_Status_Success;
+	return drv::IrqStatus::Success;
 }

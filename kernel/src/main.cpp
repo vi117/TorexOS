@@ -15,7 +15,14 @@
 #include <drivers/timer/cmos.h>
 #include <drivers/timer/pit.h>
 
+#include <process/process.h>
+#include <process/scheduler.h>
+
 #include <debug/debug.h>
+
+static void loop();
+
+static vga_ostream out;
 
 [[noreturn]]
 int main()
@@ -27,7 +34,7 @@ int main()
     out << "Memory Entry Count : ";
     _init();
     if(!acpi::prepareTable())
-        panic("couldn't ACPI.");
+        panic("couldn't load ACPI.");
     //memory::printMemoryMap(out);
     out << "start memory collecting...\n";
     memory::init();
@@ -40,10 +47,13 @@ int main()
      <<" " << (int)t.hour<<"h "
      << (int)t.minute<<"m " << (int)t.second << "s \n";*/
     x86_64::IRQ_init();
-    PIT::initialize(PIT::msToCount(1),true);
-    setinterruptflag();
-    
-    //PIC8259::initialize(32);
+    //PIT::initialize(PIT::msToCount(1),true);
+    PIT::init_for_sched();
+    ps::start_scheduling(loop);
+}
+
+void loop()
+{
     ps2::Keyboard keyboard;
     bool kbd_init= keyboard.initialize();
     if(!kbd_init) out << "failed to initialize ps/2 keyboard.\n";

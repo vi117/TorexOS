@@ -1,6 +1,9 @@
-#include <drivers/timer/pit.h>
 #include <intrins.h>
 #include <util/interrupt_lock.h>
+
+#include <drivers/driver.h>
+#include <drivers/timer/pit.h>
+#include <process/scheduler.h>
 
 enum SelectCounter
 {
@@ -73,4 +76,54 @@ void PIT::waitMs(unsigned long Millisecond)
 	for (size_t i = 0; i < (Millisecond >> 5); i++)
 		waitUsingDirectPIT(msToCount(0x20));
 	waitUsingDirectPIT(msToCount(Millisecond & 0x1F));
+}
+class SchedPitTimerHandler : public drv::IrqHandler
+{
+public:
+	virtual drv::IrqStatus topHalf() override
+	{
+		count++;
+		if(expired <= count)
+		{
+			ps::current_scheduler().tick();
+		}
+		return drv::IrqStatus::Success;
+	}
+	virtual const char * name() override {return "PIT_Timer";}
+	void set_expired(uint64_t c)
+	{
+		expired = count + c;
+	}
+	uint64_t count = 0;
+	uint64_t expired = 0xffffffffffffffff;
+};
+
+#include<arch/interrupt.h>
+
+class SchedPitTimer : public ps::SchedulerTimer
+{
+public:
+	void init()
+	{
+		using namespace PIT;
+		initialize(msToCount(1),true);
+		x86_64::register_handler(0,&handler);
+	}
+	virtual void expired_after(util::millisecond_t ms) override
+	{
+		expired_count(ms.count());
+	}
+	virtual void expired_count(uint64_t c) override
+	{
+		handler.set_expired(c);
+	}
+
+	SchedPitTimerHandler handler;
+};
+
+static SchedPitTimer timer;
+void PIT::init_for_sched(){timer.init();}
+ps::SchedulerTimer * PIT::get_PIT()
+{
+	return &timer;
 }
