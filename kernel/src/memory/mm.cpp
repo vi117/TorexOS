@@ -6,9 +6,7 @@
 #include <algo/sort.h>
 
 #include <math/ilog2.h>
-#include <debug/debug.h>
 #include <debug/logger.h>
-
 #include <arch/pagetable.h>
 
 //Todo : replace magic number. 2_MB.
@@ -53,11 +51,11 @@ static phys_addr_t mark_kernel_area()
     auto pd_start = pd_base;
     const auto required_size = calculatePageDescriptorSize();
     //get physical memory
-    //2MB 조사해서 하나 하나 회수하기 귀찮음. 그래서 그냥 align.
+    //It's annoying to probe kernel memory area in detail. so I just align by 2MB.
     phys_addr_t start = getFreeMemoryStart(required_size).align(2_MB /*greatest page size... (we do not use 1GB page)*/);
     auto kernel_size = (start.to_ker() - (phys_addr_t{nullptr}).to_ker());
-    for (size_t i = 0; i < kernel_size / 2_MB /*greatest page size*/; i++)
-        mark_pages(&pd_start[i], pt_kernel, BuddyAllocator::MaxOrder /*ilog2(2_MB/4_KB)*/);
+    for (size_t i = 0; i < kernel_size / 1_MB /*greatest page size / 2*/; i++)
+        mark_pages(&pd_start[i], pt_kernel, BuddyAllocator::MaxOrder-1 /*ilog2(1_MB/4_KB)*/);
     
     TotalMemoryBlockCount += kernel_size / 2_MB;
     logger << "Kernel Space : " << kernel_size / 1_MB << " MB\n";
@@ -224,12 +222,14 @@ void * memory::kmalloc(size_t size){
         return alloc_pages(pt_kernel,calculOrder(size));
     }
     size = util::max((size_t)32, size);
-    auto index = util::math::ilog2(size) - util::math::ilog2(32);
+    const auto index = util::math::ilog2(size-1) - util::math::ilog2(32-1);
     return slubs[index].alloc();
 }
 void memory::kfree(void * ptr){
+    bool allow_kernel = true;
     size_t index = (ker_addr_t{ptr}.to_phys().address >> util::math::ilog2(smallest_page_size));
     while(pd_base[index].flags() == pt_tails){
+        allow_kernel = false;
         //turn off right bit set.
         index = (index & (index - 1));
     }
@@ -237,14 +237,54 @@ void memory::kfree(void * ptr){
         switch (pd->flags())
         {
     case pt_kernel:
-        free_pages(pd);
+        if(allow_kernel)
+        {
+            free_pages(pd);
+        }
+        else
+        {
+            panic("free through wrong allocator");
+        }
         break;
     case pt_slab:
         pd->slub_head.owner->free(&pd->slub_head,ptr);
+        break;
+    case pt_free:
+        panic("double free");
         break;
     default:
         panic("invalid pointer");
         break;
     }
     
+}
+
+void * operator new(size_t sz){
+    return memory::kmalloc(sz);
+}
+void * operator new(size_t sz, [[maybe_unused]]const util::nothrow_t nothrow_value) noexcept{
+    return memory::kmalloc(sz);
+}
+void* operator new[] (size_t sz)
+{
+return memory::kmalloc(sz);
+}
+void* operator new[] (size_t sz, [[maybe_unused]]const util::nothrow_t& nothrow_value) noexcept
+{
+return memory::kmalloc(sz);
+}
+
+void operator delete(void * ptr)
+{
+    memory::kfree(ptr);
+}
+void operator delete(void * ptr,[[maybe_unused]]size_t size){
+    memory::kfree(ptr);
+}
+void operator delete[](void * ptr)
+{
+    memory::kfree(ptr);
+}
+void operator delete[](void * ptr,[[maybe_unused]]size_t size){
+    memory::kfree(ptr);
 }

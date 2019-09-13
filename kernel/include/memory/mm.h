@@ -3,6 +3,8 @@
 #include<raw_ostream.h>
 #include<memory/pageframe.h>
 
+#include<algo/new.h>
+
 namespace memory
 {
     void init();
@@ -20,27 +22,6 @@ namespace memory
     
     void * kmalloc(size_t);
     void kfree(void *);
-
-    template<typename Ty>
-    struct kalloc_allocator{
-    Ty * allocate(){
-        return (Ty *)kmalloc(sizeof(Ty));
-    }
-    void deallocate(Ty * ptr){
-        kfree(ptr);
-    }
-    };
 } // memory
-[[nodiscard]]
-inline void * operator new(size_t sz){
-    return memory::kmalloc(sz);
-}
-inline void operator delete(void * ptr)
-{
-    memory::kfree(ptr);
-}
-inline void operator delete(void * ptr,size_t size){
-    memory::kfree(ptr);
-}
 
 namespace mm = memory;
