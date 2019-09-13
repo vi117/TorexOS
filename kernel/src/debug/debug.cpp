@@ -8,22 +8,33 @@ void errstream::write_impl(const char * str,size_t n){
 
 static errstream err;
 errstream debug;
-/*
+
 struct stackframe {
   struct stackframe* ebp;
   void * eip;
 };
-void StackTrace(void * ebp ,unsigned int MaxFrames)
+extern char STACK_START;
+extern char STACK_END;
+static void StackTrace(void * ebp ,unsigned int MaxFrames)
 {
     stackframe *stk = (stackframe *)ebp;
-    err << "Stack trace:\n";
+    err << "Stack trace : ";
+    if(ebp == nullptr)
+    {
+        err << "No Frame.";
+    }
+    else err << "\n";
     for(size_t frame = 0; stk != nullptr && frame < MaxFrames; ++frame)
     {
         // Unwind to previous stack frame
         err << stk->eip << "\n";
-        stk = stk->ebp;
+
+        if((void *)&STACK_START < (void *)stk->ebp 
+        && (void *)stk->ebp < (void *)&STACK_END)
+            stk = stk->ebp;
+        else break;
     }
-}*/
+}
 
 void panic_impl(const char * message,
                     const char * file,
@@ -41,7 +52,8 @@ void panic_impl(const char * message,
 void panicInException(int handler_num,const char *message){
     clearinterruptflag();
     err << message<< " at " << x86_64::getContextInException()->rip;
-    err << " occured in " << handler_num << " handler";
+    err << " occured in " << handler_num << " handler\n";
+    StackTrace(x86_64::getContextInException()->rbp,4);
     for(;;);
 }
 void assert_impl(const char * message,
